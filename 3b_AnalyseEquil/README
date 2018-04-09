@@ -1,0 +1,89 @@
+Analyse
+
+Used to output radial profiles & speed/acc vs time relationships from snapshots
+outputted by a version of Gadget2 edited by RAM & JMAA. This code written by
+JMAA. Requires the edited version of Gadget2 (which should come with an
+extensive readme by JMAA) - if you do not have that then this code will need
+editing for it to work for you. eos_table_interp.c based on the one by RAM.
+
+Input - directory of snapshot outputs of Gadget in the Gadget binary format
+with Internal Energy replaced with Entropy & dS/dt replaced with Internal
+Energy (see Gadget2 readme). This code only reads data from "gas" particles
+
+Output - ascii tables of:
+* Mean particle speed & acceleration vs. snapshot number
+* Radial profiles (variable vs. radius) for the following quantities for each
+snapshot:
+  # Temperature
+  # Density
+  # Pressure
+  # Internal Energy
+  # Entropy
+
+
+PARAMETER FILE (analyse.param is example):
+Format is ascii, 2 lines per parameter, first is ignored by the code & is used 
+to describle the paramter, second is its value in an appropriate format - see 
+the example. They must come in the following order:
+
+* directory of snapshot files - Input directory. As with all directories in 
+  this parameter file must NOT come with a trailing /
+
+* speed & acceleration output - output file for mean speed & acceleration data
+
+* radial profiles output dir - a directory that must then contain 5 more 
+  directories: tprofiles, rhoprofiles, pprofiles, uprofiles, sprofiles
+
+* outer radius - in cm. Required to split the snapshots into radial bins
+
+* number of materials
+
+* EOS table base name - If k is the material number (least digits integer) then
+  the EOS table filenames are: EOS_table_base_name+k+".txt"
+
+* Number of radial bins to use - number of radii to use for radial profiles
+
+* Average over particles in bin? - 1 for yes, 0 for no
+
+* Number of particles to average over in bin - 0 means all of them
+
+* T-profile base name
+
+* Rho-profile base name
+
+* P-profile base name
+
+* U-profile base name
+
+* S-profile base name
+
+* Snapshot file base name - required to identify files in the input dir that 
+  are snapshots, therefore must be unique to snapshot files
+
+* ID skip - used to identify particle material from ID, must match that used in
+  eos.h of the modified Gadget2 & the code used to make the ICs for Gadget2
+
+
+
+NOTES:
+* Snapshot files should not have extensions, assumes that the last 3 digits of
+  the filename are a snapshot number e.g. Gadget2's default output of the form:
+  "snapshot_000"
+
+* All values in snapshot files assumed to be in cgs units
+
+* Speed & Acc file has columns: snapnumber averagespeed average acc. All
+  separated by tabs
+
+* EOS tables match those used for the modified Gadget2 (that is, the "inverted"
+  ones). Ascii format with: 
+  #Rho-values #S-values Rho-values S-values P-points(varying Rho at each S) T-points(varying Rho at each S) U-values(varying Rho at each S) V_s-values(varying Rho at each S)
+  See the readme for modified Gadget2 for more details. All units in cgs.
+
+* _HASU flag in globvars.h corresponds to having told Gadget2 to output
+  rate of change of entropy at compile-time (in the Makefile) - see Gadget2
+  readme for details.
+
+* There is a decent amount of repeated code between functions in analyse.c
+  if you want to siginificantly edit this I recommend that you coalesce 
+  similar functions first 

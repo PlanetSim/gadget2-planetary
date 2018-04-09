@@ -1,0 +1,21 @@
+EscapingParticles
+
+This code takes output from Gadget2 (native snapshot file) and gives an
+estimate as to which particles are escaping. This estimate is rough and first
+order.
+
+It will define a particle as escaping iff both of the two conditions are met:
+1) Kinetic energy must exceed gravitational potential energy at that point
+2) x.v >= 0 where x is the particle's position vector and v is the 
+  velocity vector.
+
+Usage:
+./Escaping <snapshot file> <output file>
+
+
+Output is an ascii list of particle ids that are escaping. Also prints a mass
+fraction escaping to the stdout.
+
+
+This code assumes that potential is outputted by Gadget2 (needs to be turned on
+in the makefile) and that the snapshot is in only 1 file.

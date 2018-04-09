@@ -1,0 +1,23 @@
+# name of the first snapshot
+snapshot_1882clean
+# name of the second snapshot
+snapshot_1882clean
+# name of the output snapshot
+impact.dat
+# radius of the first body
+230.e5
+# radius of the second body
+230.e5
+# relative velocity in cm/s
+.5e5
+# impact parameter
+0.4
+# initial seperation in cm
+1000.e5
+# crust radius of first body
+200.e5
+# crust radius of second body
+200.e5
+# ID skip
+200000000
+

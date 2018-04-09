@@ -1,0 +1,32 @@
+# directory of snapshot files - NO TRAILING /
+../RunFiles/Test2/2equilibrationOutput
+# speed & acceleration output
+../RunFiles/Test2/analysis/3equilSA.txt
+# radial profiles output dir - no trailing /
+../RunFiles/Test2/analysis/3rprofiles
+# Outer radius of body (required to split it into radial bins)
+6.3781e8
+# number of materials
+2
+# EOS table base name
+material
+# Number of radial bins to use
+100
+# Average over particles in bin?
+1
+# Number of particles to average over per bin (0 means all of them)
+0
+# T profile base name
+tprofile
+# Rho profile base name
+rhoprofile
+# Pressure profile base name
+pprofile
+# U profile base name
+uprofile
+# S profile base name
+sprofile
+# Snapshot file base name
+snapshot
+# ID skip (must match that in eos.h of Gadget2 & that from 1_MakePlanet)
+2e8

@@ -1,0 +1,10 @@
+# percentage tollerance for mass change between iterations
+0.0000001
+# maximum number of iterations
+1000
+#minimum number of particles to be considered a remnant
+50
+# number of materials present
+2
+# id skip between materials
+200000000

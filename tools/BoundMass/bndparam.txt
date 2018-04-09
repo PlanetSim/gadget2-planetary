@@ -1,0 +1,12 @@
+# snapshot base name
+../../../GadgetSims/m1e-3r01v2b04/snapshot_050
+# name of the output file
+test
+# percentage tollerance for mass change between iterations
+0.0000001
+# maximum number of iterations
+1000
+# number of materials present
+3
+# id skip between materials
+200000000

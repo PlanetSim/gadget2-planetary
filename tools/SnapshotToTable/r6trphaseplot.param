@@ -1,0 +1,10 @@
+#input directory
+../../RunFiles/Run6TimeRes/analysis/tables/
+#output directory
+../../RunFiles/Run6TimeRes/analysis/phaseimages/
+#plot thickness
+3e7
+#plot size
+7e8
+#pixel size
+1024

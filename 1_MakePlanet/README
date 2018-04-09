@@ -1,0 +1,132 @@
+1_MakePlanet
+============
+
+PARAMETER file:
+
+The directory should contain a parameter file e.g. parameters.txt.  This
+file has a pair of lines for each parameter, the first gives the name of
+the parameter and the second is its value.  The file must contain the
+following:
+
+dconv: 	The convergence criterion for the density interpolation in terms of 
+	mean difference in density between interpolation iterations
+
+maxitd: The maximum number of iterations to perform on the density
+	interpolation
+
+nr:  	The number of radial bins into which the body is divided.  These are
+	evenly spaced
+
+Psurf: 	The surface pressure of the body
+
+isotherm: 1 for isothermal, 0 for non-isothermal
+
+temptable: this line must be present even if set to isothermal
+
+number of materials:
+
+EOS table base name: 	the EOS tables should have the form basename#.txt, where
+			number begins with 1
+
+R: 	Include a maximum radius value for each material layer
+
+rho: 	Include an initial guess of rho for each material layer
+
+fout:  	The initial conditions file name to be written
+
+nSPH:  	The total number of particles
+
+ID skip: This gives the number added to each ID for materials after the first
+	material.  This is how different materials are distinguished in GADGET.
+  	Make sure to set this to the same value as in eos.h of GADGET.
+
+
+
+
+
+TABLES/UNITS:
+
+The EOS tables must be of the form: #density points, #temperature points,
+density values, temperature values, pressure (varying density at each
+temperature), energy (varying density at each temperature), entropy (varying
+density at each temperature)
+
+density:     g/cm^3
+temperature: K
+pressure:    GPa
+energy:      MJ/kg
+entropy:     MJ/kg/K
+
+
+
+OUTPUT/UNITS:
+
+position:    cm
+mass:        g
+entropy:     erg/g/K
+
+
+
+GENERAL PROGRAM FLOW - JMAA 8/2011:
+* Read in Params
+* Read in EOS tables
+* Set all radii for each material to the Rho_guess from params
+* Read in & interpolate temperature profile to assign radii with Ts ( T(r) )
+* From Rho_guess(r) calculate m(r) & g(r)
+  # B.C.s m(0)=g(0)=0
+* Calculate P(r) from Rho & g from surface down
+  # B.C. P(surface)=P_surf from params
+* Interpolate Rho until convergence of (<DRho> < dconv || count >= maxidt)
+  # EOS gives P(T,Rho)
+  # T is specified => P_T(Rho)
+  # Reverse this => Rho_T(P)
+  # Interpolate linearly to find Rho_T,P
+  # Recalculate m(r), g(r) & P(r) as before
+* Create SPH particles
+  # Mass const. for same material type
+* All velocities set to zero
+* U & S calculated at each r from the variables already known
+
+
+ADDITIONAL NOTES FROM JMAA 8/2011:
+This code has been written to work with a modified version of Gadget2 which 
+uses the same EOSs as this code, but "inverted" such that entropy & density
+are the independent variables. Also this modified code must read in the values
+in the "internal energy" block of the ICs file as entropy values (this is the
+way the ICs file is created here) & act accordingly. If you do not have this
+version of Gadget2 (which should come by an extensive readme detailing changes
+made) then it is not best to use this code.
+
+I have edited this code with the ability to output radial temperature, density
+& entropy profiles during the run (flags for dealing with this behaviour/
+turning it off are found in globalvars.h - all of the code for this behaviour
+is found in writeprofiles.c). I have also added the feature of printing the 
+total internal energy of the planet at this stage - which is useful to know
+if it is neccesary to cool the planet after gravitational collapse during 
+equilibration. This was for debugging purposes but has been left in in case you 
+find it useful for improving on your initial temperature profiles. There are 
+also other miscellaneous debugging lines scattered through the code which I have 
+commented out & marked as my own.
+
+This code assumes that the LONG_IDS flag in the Gadget2 Makefile was NOT set & 
+will need a small amount of modification to work with this option.
+
+There was an error in the way that masses of the particles were set up, this
+has now been corrected so that all particles have the same mass regardless of
+material type. Previously masses were worked out based on the amount of mass
+of each material, but this was inconsistent with the way that the number of particles
+per radial shell was calculated (which implicitly assumed all particles were of
+the same mass). The number of particles per shell has been left alone but now
+the implicit assumption is maintained when setting particle masses.
+
+One very serious error was in the way that the code filled up the radial bins
+of particles. It calculates the number of particles for each radial shell by
+the mass fraction of the total contained in that shell and casts this ratio to
+integer. The cast truncates the value & so it is likely that too few total 
+particles are added. This is checked and the missing particles are then added.
+It was true that they were added one per shell from the centre out (looping
+round at the edge) until enough were present - however this destroyed the
+density profile (as calculated by SPH codes) at the centre due to the small
+size & number of particles there. This has been replaced by adding them from the
+edge in & preventing any from being added to the central half of radial shells.
+A warning message specifying how many particles this affects is also printed.

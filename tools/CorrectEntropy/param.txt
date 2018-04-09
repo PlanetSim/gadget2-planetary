@@ -1,0 +1,6 @@
+# snapshot file name
+../RunFiles/Test1/equilibrationOutput1/snapshot_081
+# name of the output file
+../RunFiles/Test1/removedSnapshot
+# location of the entropy profile
+../RunFiles/Run6ArtCool/sprofile.txt

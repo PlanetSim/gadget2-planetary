@@ -1,0 +1,32 @@
+# dconv
+0.05
+# maxitd
+100
+# nr
+201
+# Psurf
+0.0
+# isotherm
+0
+# isoT
+2000.0
+# temptable
+../RunFiles/HotStartFixEnt_Run6/1tprofhotstartproj.txt
+# number of materials
+2
+# EOS table base name
+material
+# R1, include one R value for each material
+9.8505e7
+# R2
+1.8975e8
+# rho1, include one rho value for each material
+9.24
+# rho2
+3.46
+# fout
+../RunFiles/HotStartFixEnt_Run6/1impactorIC.dat
+# nSPH
+23500
+# ID skip
+2e8

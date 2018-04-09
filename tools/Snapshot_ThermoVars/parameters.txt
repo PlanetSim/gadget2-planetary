@@ -1,0 +1,6 @@
+# snapshot base name
+snapshot_1083
+# name of the output file
+snapshot_1083_ipt
+# energy field: 0 for entropy, 1 for pressure, 2 for temperature, 3 for energy
+0

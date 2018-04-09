@@ -1,0 +1,39 @@
+PARAMETER file:
+
+The directory must contain a file called parameters.txt.  This file includes a
+pair of lines for each variable.  The first line gives the name and the second
+gives the value.  The following must be present:
+
+file1:  Name of the first snapshot
+
+file2:  Name of the second snapshot
+
+output: Name of the output snapshot
+
+R1:  Radius of the first body
+
+R2:  Radius of the second body
+
+Relative velocity (in cm/s)
+
+Impact parameter:  shift in the y-direction of the second body, given as a
+fraction of the sum of the radii
+
+Initial seperation (in cm)
+
+Radius beyond which to identify as crust for first body: 0 to ignore
+
+Crust radius for second body: 0 to ignore
+
+IDSKIP
+
+
+OUTPUT:
+
+
+This program will take file2 and shift it in the y-direction by the specified
+impact parameter, in the x-direction by the initial seperation, and give the
+body the specified relative velocity
+
+
+

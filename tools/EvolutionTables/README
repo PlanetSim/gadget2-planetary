@@ -1,0 +1,18 @@
+N.B. This code needs A LOT of memory.
+
+Say, you're analysing 1000 snapshot files of 165,000 particles each. The code
+then keeps track of 19 64-bit double quantities for each, that corresponds to:
+
+	19*1000*165000*64bits = 25.08GB of memory
+
+That's not counting anything else stored (in this example~: 2e8 * ints, 1000*
+long, 1000*double, 165000*int, 165000*short + small others):
+
+	2e8*32 + 1000*64 + 1000*64 + 165000*32 + 165000*16
+		= 801MB
+
+So this code would then require almost 26GB of memory.
+
+
+Therefore should only be run on a supercomputer and only when absolutely 
+necessary (since the output size would be much larger, being in ascii format).

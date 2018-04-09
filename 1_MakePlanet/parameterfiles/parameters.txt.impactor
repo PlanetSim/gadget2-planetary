@@ -1,0 +1,28 @@
+# dconv
+0.05
+# maxitd
+10
+# nr
+101
+# Psurf
+1.013e5
+# isotherm
+1
+# isoT
+273.0
+# temptable
+tempprofile.txt
+# number of materials
+1
+# EOS table base name
+material
+# R1, include one R value for each material
+3.4e8
+# rho1, include one rho value for each material
+1.0
+# fout
+planetIC.dat
+# nSPH
+5e4
+# ID skip
+200000000

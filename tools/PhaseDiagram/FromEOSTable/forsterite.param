@@ -1,0 +1,30 @@
+#eos filename
+forsterite_inverted.txt
+#output table filename
+forsterite_phase.txt
+#output png filename
+forsterite_plot.png
+#plot max/min d2T/dS2
+1
+#gnuplot file
+forsterite_plot.gnu
+#peaks table filename
+forsterite_peaks.txt
+#minimum S
+3.5e7
+#maximum S
+8e7
+#minimum T
+2000
+#maximum T
+1e4
+#number of isobars to be plotted
+100
+#maximum pressure for isobars
+1e11
+#Sskip (greater value => faster run but sparser coverage)
+20
+#Delete auxillary files at the end?
+0
+#text name for the material
+forsterite

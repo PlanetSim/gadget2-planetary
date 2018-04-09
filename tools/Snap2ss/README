@@ -1,0 +1,6 @@
+PJC 22/11/16
+
+Snap2ss
+
+Takes a Gadget snapshot file and outputs a PKDGRAV ss binary file using specified
+option to define particle radius.

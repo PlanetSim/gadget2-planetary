@@ -1,0 +1,30 @@
+#eos filename
+iron_inverted.txt
+#output table filename
+iron_phase.txt
+#output png filename
+iron_plot.png
+#plot max/min d2T/dS2
+1
+#gnuplot file
+iron_plot.gnu
+#peaks table filename
+iron_peaks.txt
+#minimum S
+1e7
+#maximum S
+5e7
+#minimum T
+1000
+#maximum T
+1.1e4
+#number of isobars to be plotted
+200
+#maximum pressure for isobars
+1e10
+#Sskip (greater value => faster run but sparser coverage)
+20
+#Delete auxillary files at the end?
+0
+#text name for the material
+iron

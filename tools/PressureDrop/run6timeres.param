@@ -1,0 +1,8 @@
+#input directory
+../../RunFiles/Run6TimeRes/analysis/tables/
+#output file
+../../RunFiles/Run6TimeRes/analysis/0.00001droppingps.txt
+#snapbase
+snapshot
+#factor to drop to from peak
+0.00001

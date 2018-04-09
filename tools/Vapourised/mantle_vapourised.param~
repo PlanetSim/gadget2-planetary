@@ -1,0 +1,10 @@
+# File defining the bell curve
+../PhaseDiagram/forsterite_bell.txt
+# File containing peak pressure data
+../RunFiles/Run6/analysis/collision/peakpressuretableto25.txt
+# Output file
+../RunFiles/Run6/analysis/collision/fractionvapourised_mantle.txt
+# Temperature of 1bar isobar in bell
+3370
+# material number
+2

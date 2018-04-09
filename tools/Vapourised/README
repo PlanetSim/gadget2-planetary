@@ -1,0 +1,40 @@
+vapourised.py
+
+A script taking the output of FindPeakPressure and a "bell curve" phase
+boundary on a T-S diagram and esimates the vapourisation of all particles
+based on their entropy & temperature at peak pressure. "bell curve" file
+must be an ascii table suitable for plotting with gnuplot with the first
+column being entropy values and the second temperature values.
+
+Takes a parameter files with ignored lines before each read-in line to allow
+for identification. Parameters come in the order:
+bell curve table
+output table of FindPeakPressure
+output file
+temperature of 1bar isobar in bell
+material number
+
+Code will assume that the material releases isentropically down to 1bar
+pressure, and hence the temperature for the (horizontal) isobar at 1bar is
+required to use the lever rule to estimate mass fraction of vapour in each
+particle. Output is an ascii table containing the particle ids and mass
+fractions.
+
+Assumes that the phase boundary is a bell-shape, i.e. cuts the 1bar-temp 
+ascending and then descending:
+		    ____
+	      __|__/    \___
+	   __/	|	    \__
+	  /	|	       \
+	 /	|	        \
+	/   A	|	  B      \
+-------/--------------------------\---------- 1bar temperature
+      /		|		   \
+    _/		|		    \_
+  _/		|		      \_
+_/		|			\_ phase boundary
+		relaxation isentrope
+
+
+lever rule:
+	vapour mass fraction = A/(A+B)

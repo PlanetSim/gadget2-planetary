@@ -1,0 +1,12 @@
+# Number of materials
+2
+# File defining the bell curve for material 1
+../PhaseDiagram/FromANEOSOUTPUT/iron_bell.txt
+# File defining the bell curve for material 2
+../PhaseDiagram/FromANEOSOUTPUT/forsterite_bell.txt
+# Critical point of material 1 S,T,P
+2.9205e7,30618,5.4235925e10
+# Critical point of material 2 S,T,P
+5.4023e7,8806.1,2.5474306e10
+# Input dir
+../../RunFiles/Run6TimeRes/analysis/peakpressuretable.txt

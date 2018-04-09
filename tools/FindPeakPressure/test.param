@@ -1,0 +1,12 @@
+#input dir
+test
+#ouput dir
+.
+#width
+3e7
+#size
+7e8
+#px size
+1024
+#tracer file
+tracerparticles.txt

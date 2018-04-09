@@ -1,0 +1,132 @@
+Gadget2-planetary
+=================
+
+Modified and updated by RAm, STS, JMAA, PJC.
+
+
+1. Introduction
+---------------
+This is a collection of code and tools for using Gadget2 to simulate planetary
+impacts. The core of this is a modified version of the Gadget2 code, which 
+uses custom equations of state (EOSs), here from ANEOS, to run SPH simulations.
+The Gadget2 code has also been modified to allow faster equilibration of
+initial conditions.
+
+Thses are organised into a directory structure as follows:
+* Numbered directories (1_.. 2_.. etc.) are for the elements of each step
+  of a run. See below.
+* Gadget2Source is what it says on the tin
+* EOS tables
+* tools contains many scripts for analysis of the runs (see below).
+
+Much of these tools depend on one another, and as such individual READMEs may 
+be a bit lacking.
+So this readme acts as an explanation of all of them, so that the specific
+readmes of individual codes can be left to their specific nuances.
+
+The original set of codes and tools came from Sarah Stewart (STS) at Harvard in
+2011 and her student Robert Marcus (RAM). John-Mark Allen (JMAA) Univ. of
+Cambridge working under Zoe Leinhardt Univ. of Bristol 2011, cleaned up,
+changed extensively, and used these codes and the result is as you see now.
+
+Contents
+--------
+1. Introduction
+2. Remarks appying to the whole set
+3. Main flow of a run. The numbered directories
+
+
+2. Remarks
+----------
+These codes depend on Gadget2 and I assume that the Gadget2 Users Guide has 
+been read before attempting to use these codes. There are, however, certain
+important differences between this code and the original Gadget2 code. In
+the Gadget2Source directory there is an extensive README explaining these 
+differences.
+The EOS files here come in two flavours, one of which is referred to as the
+"inverted" table. The "inverted" table is, in fact, the norm and the "non-
+inverted" case is only ever used in the 1_MakePlanet step. The structure and
+units of the non-inverted case are described in 1_MakePlanet/README whereas
+the structure and units of the inverted case are described in Gadget2Source/
+README.
+Gadget has the facility for some flexibility in the structure of the non-
+inverted EOS tables, this is not true of many of the codes in tools and 
+elsewhere. So it is recommended that you stick to the order of variables
+given in Gadget2Source. It should not be difficult to change other tools to
+make them work with another type of EOS table, however.
+Most of the codes are written in C, others in python. I have tried to make most
+of them either legible, well-commented, come with README or some combination
+thereof. At least the top of the main source file for any code should contain a
+brief description of what the code does, its inputs and outputs.
+Almost all (barring Gadget itself) of the codes here (when they use parameter
+files) use ascii parameter files where each parameter takes up two lines - the
+first being ignored by the code to act as a identifier for humans.
+Outputs are very often in the form of ascii tables suitable for plotting
+with Gnuplot, STILTS or Topcat (in fact, you'll find some python scripts 
+for use with jySTILTS among the scripts) - that is: columns separated by tabs,
+rows separated by new lines, first lines that start with a '#' being column
+headings.
+The way Gadget has been changed to deal with multiple SPH materials is by
+having an "idskip" which is described in the Gadget2 readme. Therefore, many
+of the analysis codes (any one that wants to know about material) needs the
+same idskip. Most of these codes also assume that Gadget has been compiled
+for a certain set of outputs - this basically means outputting everything
+and using S rather than U in the snapshot/initial conditions files. All of the
+tools also assume cgs units for all quantities. It is therefore recommended
+that Gadget2 is set up to use cgs as its internal units.
+
+PJC 19/01/2016:
+5_CombineBodies has been modified to separate IDs for materials within each
+body by half the IDSKIP value. It also now allows specifying a radius for each
+body beyond which material will be identified as crust. This is achieved by
+advancing those particle IDs by IDSKIP. The crust is then a new material (3),
+and Gadget should be supplied with a further material EOS file, which should
+be a copy of the previous final material (2). Gadget must also be compiled
+with 1 greater total number of materials to accomodate this (3).
+
+
+3. Main flow
+------------
+3.1 1_MakePlanet
+ Code to make a multi-layer planet (I've used it for two-layers, I never tested
+ it for more than two).
+ Comprehensive readme
+ Requires non-inverted EOS tables for each material and a radial temperature
+ profile as input.
+ Outputs a Gadget2 IC file
+
+3.2 2_SampleInit
+ Really just a directory in which to run Gadget2. If you're running on a
+ supercomputer this is the directory that needs to be moved over to the 
+ supercomputer (as well as the output directories specified).
+ Your run will probably want to make use of the artificial cooling mechanisms
+ introducted to Gadget2 - these will make the equilibration quicker and more
+ likely to reach the desired state. See the readme file for these.
+ When using these artifical cooling mechanisms, it is best to equilibrate
+ twice - the second one without artificial cooling to ensure that the 
+ equilibrium is not dependent on these cooling mechanisms.
+
+3.3
+    3_ReadSnap
+ Reads Gadget snapshot files and outputs ascii file of required fields.
+ Modified by PJC to optionally add EOS derived T, P, etc. to output.
+
+    3b_AnalyseEquil (JMAA)
+ A tool to help you decide if a planet has equilibrated.Outputs various
+ thermodynamic radial profiles for each snapshot file and a table of mean
+ particle speed and acceleration against snapshot number.
+
+3.4 4_Remove
+ Removes particles from an equilibrated snapshot that are more than a certain
+ distance from the origin. This is to catch any particles that may have flown
+ away.
+
+3.5 5_CombineBodies
+ Steps 1-4 need to be completed for both projectile and target planets. This
+ step combines them such that they're colliding in the centre-of-mass frame
+ with a specific speed, distance and impact parameter.
+ Also corrects for any net momentum gain from the origin that the artificial
+ cooling might cause.
+
+3.6 6_Collide
+ Similar to 2 except this is designed to hold the actual collision.

@@ -1,0 +1,10 @@
+# snapshot base name
+snapshot_097
+# name of the output file
+snapshot_097b
+# mass ratio
+0.13
+# impact parameter
+0.73
+# n1
+100000

@@ -1,0 +1,38 @@
+phasediagram.py
+
+Takes an EOS table of the form used by Gadget2 (dependent variables in the
+order: pressure, temperature, internal energy, sound speed) and outputs
+a T against S diagram of isobars. Takes a parameter file as input.
+
+Parameter file must be formatted with ignored lines between each value to be
+read (to allow for identification). Parameters (in this order) are:
+EOS file name
+output table file name
+output png file name
+1 or 0 denoting whether max/min d2T/dS2 for each isobar are to be estimated 
+and plotted
+auxillary gnuplot script file name
+auxillary "peaks" (d2T/dS2) table file name
+min. S value to be plotted
+max. S value
+min. T value
+max. T value
+number of isobars to be drawn (approx) - zero means all of them
+maximum pressure isobar (approx)
+Sskip - the larger this is the more sparse the plot will be but the faster it
+will run (integer)
+1 or 0 denoting whether auxillary files are deleted when done with
+
+Relies on having gnuplot installed and accessible by the command "gnuplot" also
+will try to use Eye Of Gnome ("eog") to display resultant plots.
+
+Output tables (ascii) have headings denoting their contents. Isobars are found
+by using an "S_0" value of entropy and then running through each Rho value
+in the table finding a corresponding pressure then recording the T values
+for this pressure against all of the S values. Sskip denotes how many of these
+S_0 values to be used. If a value is not in the table or cannot be extrapolated
+or interpolated from it in a dumb fashion then "nan" is outputted. No isobars
+with values exceeding the specified maximum of pressure will be plotted. Not
+all isobars are plotted (as denoted by the parameter file) but the estimataed
+peak 2nd derivatives will be plotted for all isobars calculated.
+2nd derivatives included to aid finding of the phase boundaries.

@@ -1,0 +1,7 @@
+# default Robert settings for Gadget2
+
+module load hpc/fftw2-openmpi-gnu   
+module load hpc/gsl-intel           
+module load hpc/openmpi-intel       
+module load hpc/fftw2-openmpi-intel 
+module load hpc/hdf5-intel          

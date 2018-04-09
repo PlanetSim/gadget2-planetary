@@ -1,0 +1,6 @@
+03/07/16 - PJC - Updated to give mantle/core/crust masses. Potential minimum method for higher
+remnants does not necessarily get them in mass order, so can stop too early.
+
+THIS CODE IS UNFINISHED.
+THE CODE IN bound.c ESPECIALLY NEEDS TO BE CONVERTED SO THAT ONLY THOSE PARTICLES CURRENTLY
+UNBOUND CAN BE ADDED TO THE NEW BOUND REMNANT

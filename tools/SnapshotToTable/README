@@ -1,0 +1,29 @@
+SnapToTable - Takes a Gadget2 snapshot in the default binary format & converts
+	      it into an ascii table suitable for plotting.
+
+analysedir.py - Uses SnapToTable to convert an entire directory of snapshots
+                to ascii tables containing certain columns
+
+stiltsplot.py - Uses stilts (http://www.star.bris.ac.uk/~mbt/stilts/) to plot
+                an x-y cross-section through snapshot tables created with
+		analysedir.py
+
+Usage for each is gained by running:
+./SnapToTable
+python analysedir.py
+jystilts stiltsplot.py
+
+This readme focusses on SnapToTable - others are self-explanatory & in a state
+of flux.
+
+
+SnapToTable is very similar to "Analyse" in how it works, the code for reading
+& interpreting the EOSs is identical (& based on that by RAM). To make it more
+batch-friendly it was decided not to have a parameter file & to use flags in
+globvars.h instead for many detailed options.
+It is therefore recommended that you make the code afresh every time it is
+used.
+
+Note that when specifying a directory for any/all of these scripts it is
+required that there is no trailing "/". TODO: add a check so this requirement
+is no longer needed. Also, the scripts assume running on Unix

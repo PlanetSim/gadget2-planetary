@@ -1,0 +1,172 @@
+Modified Gadget2
+===============
+
+Modified by RAM, JMAA, STS
+
+1. ITRODUCTION
+----------------
+This readme details changes made to this version of Gadget2. It has been
+written by John-Mark Allen (JMAA) 8/2011 (Unv. of Cambridge, working at Unv.
+of Bristol under Zoe Leinhardt). This version of the code was extensively
+edited by Robert Marcus (RAM, formerly Harvard Unv. under Sarah Stewart) and
+the edits mentioned here in sections 2 - 4 were made by RAM and left 
+(largely, as far as I can tell) undocumented - so those sections form a 
+non-authoritative guide to his changes written by JMAA. Sections 5 onwards
+deal with edits that JMAA made to the code.
+
+
+2. EQUATION OF STATE & Introduction edits of RAM
+--------------------
+There are two main changes: one to the way Gadget deals with the EOS of
+"Gas" particles and the other to the format of the input/output files
+used. They are both explained in detail below in sections 2 & 3 respectively.
+
+The main change has been to change the equation of state functions of Gadget
+to use tables (constructed using a modified version of ANEOS for our purposes
+but there's no reason why other EOSs could not be used). This entails the 
+addition of eos_table_interp.c & eos.h files to the source.
+The EOS tables must be ascii files of a simple list of floating-point 
+(excepting the first two) values separated by a single space. Density and 
+entropy are used as the independent variables. The values come in the following
+order:
+* (integer) number of density values
+* (integer) number of entropy values
+* (float) list of the density values
+* (float) list of the entropy values
+* (float) list of the Pressure values
+* (float) list of Temperature values
+* (float) list of Sepecific Internal Energy values
+* (float) list of Speed-of-sound values
+
+All values in cgs units.
+
+The dependent value lists are in the order corresponding to the order of the 
+density & entropy values, varying density at every entropy point - i.e. the
+second pressure point corresponds to the first entropy value and the second
+density value. Density & entropy values should both be monotonic (monotonically
+increasing is safest - but I'm not sure if it makes a difference).
+The above is the default format for the EOS tables - but should this need to be
+changed this can be done via flags in eos.h. Most are fairly self-explanatory
+with reference to the above (e.g. EOS_NUM_THERMO is the number of dependent
+variables present, EOS_PRESSURE/TEMPERATURE/etc. is the order in which they 
+come, etc.). One important one is EOS_ID_SKIP:
+This modified code uses particle ids to keep track of the type of material for
+that particle. If a particle has id "i" then the material is the integer "k" 
+such that (k-1)*ID_SKIP <= i < k*ID_SKIP. This needs to be large enough, then,
+to accomodate the number of particles desired for each material. All tools
+for analysing the data will also need to know the same value of ID_SKIP.
+File names for the EOS tables are specified by EOS_MATERIAL_ROOT & 
+EOS_MATERIAL_SUFFIX such that the file name for EOS table corresponding to 
+material k must be: EOS_MATERIAL_ROOT+k+EOS_MATERIAL_SUFFIX where k is a two-
+digit integer. (e.g. "material01.txt")
+
+It should be noted that Gadget has the facility to change its internal units,
+which are also its output units, by way of the parameter file passed to it
+at runtime. I (JMAA) recieved this code with a number of parameter files
+all suggesting using cgs units, I do not know whether this EOS implimentation
+has been designed to work with Gadget having other internal units - I would not
+recommend changing the internal units from cgs though.
+
+The above should be enough to work with Gadget as modified for these equations
+of state. N.B. if you've recieved this code as part of a set of codes for
+planetary collisions including a step called "1_MakePlanet" which contains
+the code "InitPlanet" then there are two different types of EOS table.
+InitPlanet uses EOS tables with Density & Temperature as the independent
+variables but the EOSs should be the same as the tables used in Gadget. In
+this case, the Gadget EOS tables are referred to as "inverted" tables.
+
+
+3. FORMAT OF INPUT/OUTPUT FILES
+-------------------------------
+
+/* JMAA 8/2011 - I have just found out that this is, in fact, a capability
+*  of Gadget itself set by the flag_entr_ics in the header of the ICs file.
+*  See the Users Guide page 33.
+*  It is also worth mentioning that "entropy" here is the TRUE entropy, rather
+*  than the "gadget" meaning of entropy
+*/
+The other main change that needs to be noted is the format of the input/ouput
+files (snapshots and IC - initial conditions - files). They have the same
+"file formats" as described in the Gadget2 User Guide, but the values placed
+in some of the fields have changed. It is recommended that you look at io.c
+to be sure of how your code has been modified - I have endeavoured to do my 
+best to comment edits made by RAM & have made sure to comment & date any
+edits I have made (JMAA).
+
+For IC files, where the Gas specific internal energy (usually "U", sometimes
+referred to as "temperature" in original codes comments and literature - a
+reference, I assume, to the cosomolocal assumption of treating "gas" particles
+as ideal gasses) has been replaced by entropy. I.e. the "Internal Energy" block
+is filled with entropy values.
+
+For Snapshot files, the "Internal Energy" ("U") block also contains entropy
+(this makes it compatible with using snapshots as initial conditions).
+
+The flags for outputting or otherwise various quantities in the snapshots that
+are present in the Makefile (e.g. OUTPUTCHANGEOFENTROPY) refer to the /blocks/
+within the files. In this way, comments in the Gadget User Guide are all still
+true as long as it is realised that they refer to /blocks/ within the files
+regardless of what values they might contain.
+
+
+4. MISC. & SMALL EDITS BY RAM
+-----------------------------
+A list of small edits that do not appear to fit into a larger picture:
+
+# In timestep.c Gadget natively prevents entropy from dropping more than 50% in
+  a single timestep for a single particle. Immediately before this RAM also 
+  prevented increases in entropy of more than 1,000%. This has now been
+  commented, but left in. Prints a warning message of "Changed entropy for 
+  particle ..." each time this happens.
+
+
+
+5. ARTIFICIAL RESTITUTION & Introduction to edits by JMAA
+-------------------------
+All edits that I (JMAA) have made to the code I have endeavoured to comment &
+document fully. Where this is not the case I shall state so in this README. In
+general, documentation comments in the same style as those in the original
+Gadget2 code are there throughout my edits & changes made to functions that
+are part of the original Gadget2 code by myself are demarcated by a leading
+comment with my initials & a date of the edit.
+
+In order to speed up and cool down the equilibration of planets made for 
+Gadget2 simulations it is helpful to be able to artificially remove energy from
+SPH particles during the process. This is what this edit is for. The core of
+this is in artificialcooling.c with changes also being neccesary in:
+allvars.h, run.c, begrun.c, timestep.c & proto.c
+
+Both kinetic & thermal energy can be reduced by this edit as specified by the
+parameters. Kinetic energy is reduced by multiplying all velocities by a 
+restitution factor. Thermal energy is reduced only when the total internal 
+enery of all SPH particles exceeds some given tollerance of a given ideal. 
+These artificial changes happen at the end of full timesteps only such that all
+particles are synchronised when this happens.
+
+The code requires six new parameters, which are read in with the original ones
+from the parameter file. These are:
+
+ReduceVels - (int) - a flag to turn on/off (0 off, else on) reduction of 
+			kinetic energy
+RestitutionFac - (double) - factor by which velocities are multiplied ( <1 & 
+			>0 normally) - typically c.0.5
+ReduceEnt - (int) - a flag to turn on/off (0 off, else on) reduction of thermal
+			energy
+UTotIdeal - (double) - the desired ideal value of total internal energy
+UTollFac - (double) - fraction of UTotIdeal which the actual U_tot is allowed
+			to deviate by before entropy reduction turns on
+UReductionFac - (double) - fraction of the difference between ideal and actual
+				total internal energies which the code gets rid
+				of each timestep by reducing entropy.
+				Typically c.0.0002
+
+Both reductions will only be applied to SPH particles although changing the 
+code in artificialcooling.c so that reduction of velocities applies to 
+collisionless particles is trivial.
+
+The thermal energy is removed by reducing the entropy of particles, this is 
+since entropy is an independent variable and internal energy is not. The 
+conversion for each particle is done by dS = dU/T for each particle's 
+temperature. Gadget2 has a built in mechanism to limit reductions in entropy to
+50% per particle per timestep - this restriction is removed if using this
+cooling-by-entropy-reduction (see timestep.c).

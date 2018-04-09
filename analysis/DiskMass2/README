@@ -1,0 +1,4 @@
+
+This version of DiskMass differs from the previous version because it
+finds Xe, Ye, Ze by finding the CM position of the largest bound
+remnant, instead of taking these as input parameters.

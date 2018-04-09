@@ -1,0 +1,30 @@
+xccFindPeakPressure
+
+Consisting of:
+FindPeak
+tracerevolution.py
+
+FindPeak runs through a directory of Gadget2 snapshot files and outputs an
+ascii table of various thermodynamic properties at peak pressure and
+entropy for all particles. Currently this means:
+Particle id, peak Pressure, Entropy at peak pressure, temperature at peak 
+pressure, peak entropy, snapshot number at which peak pressure occurs, 
+snapshot for peak entropy, material. In that order of column.
+This is a very slow code for large outputs.
+Takes an ascii parameter file as input which must be formatted with ignored
+lines before each read-in value (to allow for descriptions). The parameters,
+in order, are:
+input directory (must not have a trailing "/"), output file, number of 
+materials, equation of state table base name, snapshot file base name,
+idskip (matching that of eos.h in Gadget2).
+EOS tables must be of the same form taken by Gadget2 with dependent variables 
+in order: Pressure, Temperature, Internal Energy, Sound Speed. Files must be 
+named: eostablebasename#.txt
+
+
+tracerevolutions.py takes a list of particle ids used as "tracer" particles
+and outputs tables of various thermodynamic properties against snapshot
+number. Output files are put in a specified directory and named 
+[variable]evolution.txt. Input file is an ascii list of particle ids separated
+by newline characters. Must be pointed at an input directory containing 
+ascii tables derived from Gadget2 snapshots (e.g. by SnapshotToTable)

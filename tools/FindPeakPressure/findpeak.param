@@ -1,0 +1,12 @@
+# directory containing snapshot files (no trailing /)
+../RunFiles/Run6/collisionOutput
+# output file
+../RunFiles/Run6/analysis/collision/peakpressuretable.txt
+# number of materials
+2
+# EOS table base name
+material
+# snapshot file base name
+snapshot
+# id skip (must match that used to make planet & used by Gadget)
+2e8

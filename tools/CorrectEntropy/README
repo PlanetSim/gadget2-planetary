@@ -1,0 +1,23 @@
+CorrectEntropy
+
+A code to take a pre-equilibrated planet snapshot, and output an initial
+conditions file which a specific entropy profile.
+
+Based on code from 4_Remove and 5_CombineBodies.
+
+Reads in from a parameter file, which needs 3 parameters in 6 lines (odd
+numbered lines are ignored & left for identifiers for the coming parameter).
+Parameters are (in order): input snapshot file location, output IC file
+location, location of entropy profile. Snapshot must be in Gadget type "1"
+format. Makes multiple assumptions about the parameters used for Gadget
+in making this snapshot e.g. no long ids, all "gas" particles, entropies
+rather than internal energies.
+
+Entropy profile must be of the following format in an ascii file:
+[number of lines, n]\n
+[radius]\t[entropy]\n  \
+[radius]\t[entropy]\n   |
+[radius]\t[entropy]\n   > n of these
+[radius]\t[entropy]\n   |
+[radius]\t[entropy]\n  /
+Must be ordered for increasing radius.
