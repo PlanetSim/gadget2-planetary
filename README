@@ -1,7 +1,8 @@
 Gadget2-planetary
 =================
 
-Modified and updated by RAm, STS, JMAA, PJC.
+Modified and updated by Rober Marcus (RAM), Sarah Stewart (STS), 
+John-Mark Allen (JMAA) and Philip Carter (PJC).
 
 
 1. Introduction
@@ -9,25 +10,25 @@ Modified and updated by RAm, STS, JMAA, PJC.
 This is a collection of code and tools for using Gadget2 to simulate planetary
 impacts. The core of this is a modified version of the Gadget2 code, which 
 uses custom equations of state (EOSs), here from ANEOS, to run SPH simulations.
-The Gadget2 code has also been modified to allow faster equilibration of
+The Gadget2 code has also been modified to allow easier equilibration of
 initial conditions.
 
 Thses are organised into a directory structure as follows:
 * Numbered directories (1_.. 2_.. etc.) are for the elements of each step
   of a run. See below.
-* Gadget2Source is what it says on the tin
+* Gadget2Source is the main source code
 * EOS tables
 * tools contains many scripts for analysis of the runs (see below).
 
-Much of these tools depend on one another, and as such individual READMEs may 
+Some these tools depend on one another, and as such individual READMEs may 
 be a bit lacking.
 So this readme acts as an explanation of all of them, so that the specific
 readmes of individual codes can be left to their specific nuances.
 
-The original set of codes and tools came from Sarah Stewart (STS) at Harvard in
-2011 and her student Robert Marcus (RAM). John-Mark Allen (JMAA) Univ. of
-Cambridge working under Zoe Leinhardt Univ. of Bristol 2011, cleaned up,
-changed extensively, and used these codes and the result is as you see now.
+The original set of codes and tools came from STS at Harvard in 2011 and
+her student RAM. JMAA Univ. of Cambridge working under Zoe Leinhardt 
+Univ. of Bristol 2011, cleaned up the code, and changed it extensively. 
+PJC merged and reconclied the two differing codebases.
 
 Contents
 --------
@@ -77,23 +78,22 @@ that Gadget2 is set up to use cgs as its internal units.
 
 PJC 19/01/2016:
 5_CombineBodies has been modified to separate IDs for materials within each
-body by half the IDSKIP value. It also now allows specifying a radius for each
-body beyond which material will be identified as crust. This is achieved by
-advancing those particle IDs by IDSKIP. The crust is then a new material (3),
-and Gadget should be supplied with a further material EOS file, which should
-be a copy of the previous final material (2). Gadget must also be compiled
-with 1 greater total number of materials to accomodate this (3).
+body by half the IDSKIP value (BODYSKIP). It also now allows specifying a 
+radius for each body beyond which material will be identified as crust. This 
+is achieved by advancing those particle IDs by IDSKIP. The crust is then a 
+new material (3), and Gadget should be supplied with a further material EOS 
+file, which may be a copy of the previous final material (2). Gadget must 
+also be compiled with 1 greater total number of materials to accomodate this (3).
 
 
 3. Main flow
 ------------
 3.1 1_MakePlanet
- Code to make a multi-layer planet (I've used it for two-layers, I never tested
- it for more than two).
+ Code to make a multi-layer planet.
  Comprehensive readme
  Requires non-inverted EOS tables for each material and a radial temperature
  profile as input.
- Outputs a Gadget2 IC file
+ Outputs a Gadget2 IC file (snapshot).
 
 3.2 2_SampleInit
  Really just a directory in which to run Gadget2. If you're running on a
