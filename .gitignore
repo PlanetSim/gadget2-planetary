@@ -1,3 +1,16 @@
 .DS_Store
 *.o
+InitPlanet
+Gadget2
+Analyse
+CombineBodies
+Read
+Remove
+BoundMass
+RemoveLR
+RemoveLR_long
+SnapshotL
+MoreBound
+Snap2ss
+snapshot_*
 
