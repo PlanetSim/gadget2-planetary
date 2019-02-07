@@ -4,7 +4,7 @@
 #define EOS_INT_ENERGY    2
 #define EOS_SOUND_SPEED   3
 #define EOS_NUM_MATERIALS 2
-#define EOS_NUM_GASES     1
+#define EOS_NUM_GASES     0
 #define EOS_ID_START      1
 #define EOS_ID_SKIP       200000000
 #define EOS_MATERIAL_ROOT "material"
