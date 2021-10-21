@@ -42,8 +42,8 @@ void run(void)
       // JMAA 8/2011 - Reduce the velocities of all particles by a factor if specifed to do so in the parameter file
       // Code for this found in artificialcooling.c
       if( (Flag_FullStep == 1) && ((All.ReduceVels != 0) || (All.ReduceEnt != 0)) ) { 
-	// only do this after synchronisation at the end of a full timestep
-	artificialcooling();
+	  // only do this after synchronisation at the end of a full timestep
+	    artificialcooling();
       }
 
       every_timestep_stuff();	/* write some info to log-files */

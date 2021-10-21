@@ -30,7 +30,7 @@ void artificialcooling( void ) {
   double dS = 0;    // amount to reduce entropy by
   double T = 0;     // temperature of that particle
   int ReduceEntropies = 0;  // flag which is only set true if we're outside the tollerance
-  double * intenergies = malloc( NumPart * sizeof(double) );  //stores the internal energies of sph particles so we only calculate them once
+  double *intenergies = malloc( NumPart * sizeof(double) );  //stores the internal energies of sph particles so we only calculate them once
 
   t0 = second();
 
@@ -86,4 +86,5 @@ void artificialcooling( void ) {
   t1 = second();
   All.CPU_TimeLine += timediff(t0, t1);
 
+  free(intenergies);
 }
