@@ -128,7 +128,7 @@ void bound( struct particle_data *p ) {
 
     remnant++;
 
-  } while ( nbound >= minparts );
+  } while ( nbound >= minparts || remnant<4 );
 
 
   /* Check correct order and rearrange if required */
