@@ -15,4 +15,9 @@ tools/Snapshot_ThermoVars/SnapshotL
 tools/MoreBound/MoreBound
 tools/Snap2ss/Snap2ss
 snapshot_*
+planetIC.*
+1_MakePlanet/SuperEarthICs
+1_MakePlanet/SuperEarth_profiles
+1_MakePlanet/parameterfiles
+1_MakePlanet/tprofiles
 

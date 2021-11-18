@@ -1,22 +1,21 @@
 Modified Gadget2
-===============
+================
 
-Modified by RAM, JMAA, STS
+Modified by RAM, JMAA, STS, PJC.
 
-1. ITRODUCTION
+1. INTRODUCTION
 ----------------
-This readme details changes made to this version of Gadget2. It has been
-written by John-Mark Allen (JMAA) 8/2011 (Unv. of Cambridge, working at Unv.
-of Bristol under Zoe Leinhardt). This version of the code was extensively
+This readme details changes made to this version of Gadget2. It was written 
+by John-Mark Allen (JMAA) 8/2011 (Unv. of Cambridge, working at Unv. of 
+Bristol under Zoe Leinhardt). This version of the code was extensively
 edited by Robert Marcus (RAM, formerly Harvard Unv. under Sarah Stewart) and
-the edits mentioned here in sections 2 - 4 were made by RAM and left 
-(largely, as far as I can tell) undocumented - so those sections form a 
-non-authoritative guide to his changes written by JMAA. Sections 5 onwards
-deal with edits that JMAA made to the code.
+the edits mentioned here in sections 2 - 4 were made by RAM. As such those 
+sections of this readme form a non-authoritative guide to RAM's changes written 
+by JMAA. Sections 5 deals with edits that JMAA made to the code.
 
 
-2. EQUATION OF STATE & Introduction edits of RAM
---------------------
+2. EQUATION OF STATE & Introduction to edits by RAM
+---------------------------------------------------
 There are two main changes: one to the way Gadget deals with the EOS of
 "Gas" particles and the other to the format of the input/output files
 used. They are both explained in detail below in sections 2 & 3 respectively.
@@ -62,10 +61,8 @@ digit integer. (e.g. "material01.txt")
 
 It should be noted that Gadget has the facility to change its internal units,
 which are also its output units, by way of the parameter file passed to it
-at runtime. I (JMAA) recieved this code with a number of parameter files
-all suggesting using cgs units, I do not know whether this EOS implimentation
-has been designed to work with Gadget having other internal units - I would not
-recommend changing the internal units from cgs though.
+at runtime. It is recommended that cgs units are used throughout for planetary 
+calculations.
 
 The above should be enough to work with Gadget as modified for these equations
 of state. N.B. if you've recieved this code as part of a set of codes for
@@ -79,25 +76,18 @@ this case, the Gadget EOS tables are referred to as "inverted" tables.
 3. FORMAT OF INPUT/OUTPUT FILES
 -------------------------------
 
-/* JMAA 8/2011 - I have just found out that this is, in fact, a capability
-*  of Gadget itself set by the flag_entr_ics in the header of the ICs file.
-*  See the Users Guide page 33.
-*  It is also worth mentioning that "entropy" here is the TRUE entropy, rather
-*  than the "gadget" meaning of entropy
-*/
 The other main change that needs to be noted is the format of the input/ouput
 files (snapshots and IC - initial conditions - files). They have the same
 "file formats" as described in the Gadget2 User Guide, but the values placed
 in some of the fields have changed. It is recommended that you look at io.c
-to be sure of how your code has been modified - I have endeavoured to do my 
-best to comment edits made by RAM & have made sure to comment & date any
-edits I have made (JMAA).
+to be sure of how your code has been modified.
 
-For IC files, where the Gas specific internal energy (usually "U", sometimes
-referred to as "temperature" in original codes comments and literature - a
-reference, I assume, to the cosomolocal assumption of treating "gas" particles
-as ideal gasses) has been replaced by entropy. I.e. the "Internal Energy" block
-is filled with entropy values.
+For IC files, where the Gas specific internal energy (usually "U") has been 
+replaced by entropy; i.e. the "Internal Energy" block
+is filled with entropy values. This is an original capability of Gadget 
+itself set by the flag_entr_ics in the header of the ICs file. See the Users 
+Guide page 33. It is also worth mentioning that "entropy" here is the TRUE 
+entropy, rather than the "gadget" pseudo-entropy ("A").
 
 For Snapshot files, the "Internal Energy" ("U") block also contains entropy
 (this makes it compatible with using snapshots as initial conditions).
@@ -113,7 +103,7 @@ regardless of what values they might contain.
 -----------------------------
 A list of small edits that do not appear to fit into a larger picture:
 
-# In timestep.c Gadget natively prevents entropy from dropping more than 50% in
+> In timestep.c Gadget natively prevents entropy from dropping more than 50% in
   a single timestep for a single particle. Immediately before this RAM also 
   prevented increases in entropy of more than 1,000%. This has now been
   commented, but left in. Prints a warning message of "Changed entropy for 
@@ -122,18 +112,18 @@ A list of small edits that do not appear to fit into a larger picture:
 
 
 5. ARTIFICIAL RESTITUTION & Introduction to edits by JMAA
--------------------------
-All edits that I (JMAA) have made to the code I have endeavoured to comment &
-document fully. Where this is not the case I shall state so in this README. In
-general, documentation comments in the same style as those in the original
-Gadget2 code are there throughout my edits & changes made to functions that
-are part of the original Gadget2 code by myself are demarcated by a leading
-comment with my initials & a date of the edit.
+---------------------------------------------------------
+Most edits that JMAA made to the code have been commented & documented fully. 
+Where this is not the case is stated so in this README. In general, 
+documentation comments use the same style as those in the original
+Gadget2 code. Edits & changes made to functions that
+are part of the original Gadget2 code by JMAA are demarcated by a leading
+comment with the authors initials & a date of the edit.
 
 In order to speed up and cool down the equilibration of planets made for 
 Gadget2 simulations it is helpful to be able to artificially remove energy from
-SPH particles during the process. This is what this edit is for. The core of
-this is in artificialcooling.c with changes also being neccesary in:
+SPH particles during the process. This is what this modification is for. The 
+core of this is in artificialcooling.c with changes also being neccesary in:
 allvars.h, run.c, begrun.c, timestep.c & proto.c
 
 Both kinetic & thermal energy can be reduced by this edit as specified by the
@@ -149,7 +139,7 @@ from the parameter file. These are:
 ReduceVels - (int) - a flag to turn on/off (0 off, else on) reduction of 
 			kinetic energy
 RestitutionFac - (double) - factor by which velocities are multiplied ( <1 & 
-			>0 normally) - typically c.0.5
+			>0 normally) - typically c. 0.5
 ReduceEnt - (int) - a flag to turn on/off (0 off, else on) reduction of thermal
 			energy
 UTotIdeal - (double) - the desired ideal value of total internal energy
@@ -158,7 +148,7 @@ UTollFac - (double) - fraction of UTotIdeal which the actual U_tot is allowed
 UReductionFac - (double) - fraction of the difference between ideal and actual
 				total internal energies which the code gets rid
 				of each timestep by reducing entropy.
-				Typically c.0.0002
+				Typically c. 0.0002
 
 Both reductions will only be applied to SPH particles although changing the 
 code in artificialcooling.c so that reduction of velocities applies to 
@@ -170,3 +160,7 @@ conversion for each particle is done by dS = dU/T for each particle's
 temperature. Gadget2 has a built in mechanism to limit reductions in entropy to
 50% per particle per timestep - this restriction is removed if using this
 cooling-by-entropy-reduction (see timestep.c).
+
+With ReduceEnt set to -1 the 1st and 2nd materials will be forced to have the
+entropy specified using the UTollFac (core)  and UTotIdeal (mantle) parameters.
+[ This is currently rather a hack, should be cleaned up at some point - PJC ]
