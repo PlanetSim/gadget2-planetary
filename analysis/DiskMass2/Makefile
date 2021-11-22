@@ -12,7 +12,7 @@ CLFAGS	= -O3
 
 LIBS	= -lm
 
-CC	= icc
+CC	= gcc
 
 $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(EXEC) $(LIBS)

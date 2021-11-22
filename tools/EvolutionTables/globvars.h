@@ -80,3 +80,4 @@ void read_param( char * );
 int load_snapshot( char *fname, int files );
 int calculate_material( long int );
 void indexx( unsigned long, double *, unsigned long * );
+int allocate_memory(void);

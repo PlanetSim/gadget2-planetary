@@ -15,6 +15,12 @@ tools/RemoveLR_long/RemoveLR_long
 tools/Snapshot_ThermoVars/SnapshotL
 tools/MoreBound/MoreBound
 tools/Snap2ss/Snap2ss
+tools/PhaseDiagram/PhaseDiagram
+tools/PhaseDiagram/phasediagram.pyc
+tools/EscapingParticles/Escaping
+tools/EvolutionTables/Evolution
+tools/FindPeakPressure/FindPeak
+tools/SnapshotToTable/SnapToTable
 snapshot_*
 
 

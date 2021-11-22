@@ -51,3 +51,4 @@ extern double Time, Redshift;
 int load_snapshot( char *fname, int files );
 void save_output( char *, int * );
 void indexx( unsigned long, double *, unsigned long * );
+int allocate_memory(void);

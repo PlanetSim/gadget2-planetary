@@ -60,7 +60,8 @@ int print_gas(void);
 int print_mfs(void);
 int print_rho(void);
 int print_sfr(void);
-int print_gmass(void);
+/*int print_gmass(void);*/
+int print_gasmass(void);
 int print_totalmass(void);
 int print_totalpotential(void);
 int print_metals(void);
