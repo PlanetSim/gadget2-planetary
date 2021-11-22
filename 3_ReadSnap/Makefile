@@ -1,9 +1,9 @@
 EXEC   = Read 
 
-SRCS   = read.c loadsnap.c globvars.c pressure.c eos_table_interp.c nrsrc/nrutil.c \
+SRCS   = read.c loadsnap.c globvars.c pressure.c eos_table_interp.c \
 
 OBJS   = $(SRCS:.c=.o)
-INCL   = globvars.h eos.h nrsrc/nrutil.h
+INCL   = globvars.h eos.h
 
 .KEEP_STATE:
 
