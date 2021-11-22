@@ -1,6 +1,7 @@
 .DS_Store
 *.o
 1_MakePlanet/InitPlanet
+1_MakePlanet/MakePlanet.tar.gz
 2_SampleInit/Gadget2
 6_SampleRun/Gadget2
 Gadget2Source/Gadget2

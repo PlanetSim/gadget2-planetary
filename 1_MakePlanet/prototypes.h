@@ -30,6 +30,7 @@ void WriteICs(PARTICLE *, int *, float);
 void write_s_profile( int, double *, double * );
 void write_t_profile( int, double *, double * );
 void print_total_u( PARTICLE *, double );
+void readparam(void);
 
 
 

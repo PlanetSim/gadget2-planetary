@@ -7,7 +7,7 @@
 
 /* PJC 14/12/15 U is used for entropy! */
 
-void pressure()//struct particle_data *p)
+void pressure() //struct particle_data *p)
 {
 
   int i;
