@@ -89,6 +89,7 @@ struct eos_table *eos_table_import( char *filename );
 void hunt(double *xx, long n, double x, long *jlo);
 void readparam( char * );
 int load_snapshot( char *fname, int files );
+int allocate_memory(void);
 void getspeedaccline( char *, char *, long int );
 void printtprofile( char *, long int, struct eos_table** );
 void printpprofile( char *, long int, struct eos_table** );

@@ -3,8 +3,8 @@
 #include <math.h>
 
 #include "eos.h"
-#include "allvars.h"
-
+#include "globalvars.h"
+#include "nrsrc/nrutil.h"
 
 struct eos_table {
   int ND, NS, NN;
@@ -53,11 +53,11 @@ double eos_table_interp(double density, double entropy, int particle_id, short e
   eos_material_flag = (long)(x+0.5);
   if ((eos_material_flag<0)||(eos_material_flag>=EOS_NUM_MATERIALS)) {
     fprintf(stderr, "ERROR in eos-table_interp: Invalid particle id.\n");
-    fprintf(stderr, "Task: %d, ID: %d, IDstart: %d, IDskip: %d, x: %f, flag: %d\n", ThisTask, particle_id, EOS_ID_START, EOS_ID_SKIP, x, eos_material_flag);
+    /*fprintf(stderr, "Task: %d, ID: %d, IDstart: %d, IDskip: %d, x: %f, flag: %d\n", ThisTask, particle_id, EOS_ID_START, EOS_ID_SKIP, x, eos_material_flag);
     for(i = 0; i < NumPart; i++)
     {
 	fprintf(stderr, "task: %d, P[%d].ID: %d\n", ThisTask, i, P[i].ID);
-    }
+    }*/
    exit(7); 
   }
 

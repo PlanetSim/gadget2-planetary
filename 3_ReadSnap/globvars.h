@@ -56,6 +56,7 @@ extern int     SnapFile;
 int load_snapshot(char *fname, int files, int quiteon);
 int allocate_memory(void);
 int reordering(void);
+void pressure();
 
 
 

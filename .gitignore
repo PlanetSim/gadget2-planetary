@@ -1,6 +1,7 @@
 .DS_Store
 *.o
 1_MakePlanet/InitPlanet
+1_MakePlanet/MakePlanet.tar.gz
 2_SampleInit/Gadget2
 6_SampleRun/Gadget2
 Gadget2Source/Gadget2
@@ -14,6 +15,12 @@ tools/RemoveLR_long/RemoveLR_long
 tools/Snapshot_ThermoVars/SnapshotL
 tools/MoreBound/MoreBound
 tools/Snap2ss/Snap2ss
+tools/PhaseDiagram/PhaseDiagram
+tools/PhaseDiagram/phasediagram.pyc
+tools/EscapingParticles/Escaping
+tools/EvolutionTables/Evolution
+tools/FindPeakPressure/FindPeak
+tools/SnapshotToTable/SnapToTable
 snapshot_*
 planetIC.*
 1_MakePlanet/SuperEarthICs

@@ -81,3 +81,4 @@ int load_snapshot( char *fname, int files );
 int calculate_material( long int );
 void save_output( int*, double*, double*, double *, double*, int*, int*, int*, unsigned long * );
 void indexx( unsigned long, int *, unsigned long * );
+int allocate_memory(void);

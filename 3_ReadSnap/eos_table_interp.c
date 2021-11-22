@@ -4,7 +4,6 @@
 
 #include "eos.h"
 #include "globvars.h"
-#include "nrsrc/nrutil.h"
 
 
 struct eos_table {

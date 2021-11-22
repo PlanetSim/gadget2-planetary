@@ -49,3 +49,6 @@ void readparam( char * );
 void load_particles(char *, struct planet_data *, struct io_header *);
 void move_body(struct planet_data *, struct planet_data *);
 void save_combined(struct planet_data *, struct planet_data *);
+void identify_body(struct planet_data *, struct planet_data *);
+void identify_crust(struct planet_data *, double);
+
