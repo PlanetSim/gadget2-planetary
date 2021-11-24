@@ -260,6 +260,8 @@ treated as comments.
 - \b SnapFormat \n Similar as <em>ICFormat</em>, this parameter selects the
              file-format of snapshot dumps produced by the code.
 
+- \b SnapDigits \n Number of digits to use for snapshot numbering
+
 - \b ComovingIntegrationOn \n If set to "1", the code assumes that a
              cosmological integration in comoving coordinates is carried
              out, otherwise ordinary Newtonian dynamics is assumed.

@@ -41,7 +41,7 @@ void gravity_forcetest(void)
   double costtotal, *costtreelist;
   double maxt, sumt, *timetreelist;
   double fac;
-  char buf[200];
+  char buf[500];
 
 #ifdef PMGRID
   if(All.PM_Ti_endstep != All.Ti_Current)
