@@ -44,7 +44,7 @@ typedef  long long  peanokey;    /*!< defines the variable type used for Peano-H
 #define  MAX_REAL_NUMBER  1e37
 #define  MIN_REAL_NUMBER  1e-37
 
-#define  MAXLEN_FILENAME  100    /*!< Maximum number of characters for filenames (including the full path) */
+#define  MAXLEN_FILENAME  400    /*!< Maximum number of characters for filenames (including the full path) */
 
 #ifdef   ISOTHERM_EQS
 #define  GAMMA         (1.0)     /*!< index for isothermal gas */
@@ -259,6 +259,7 @@ extern struct global_data_all_processes
   int ICFormat;			/*!< selects different versions of IC file-format */
 
   int SnapFormat;		/*!< selects different versions of snapshot file-formats */
+  int SnapDigits;       /* PJC selects number of digits to be used for snapshot number. Originally 3. */
 
   int NumFilesPerSnapshot;      /*!< number of files in multi-file snapshot dumps */
   int NumFilesWrittenInParallel;/*!< maximum number of files that may be written simultaneously when

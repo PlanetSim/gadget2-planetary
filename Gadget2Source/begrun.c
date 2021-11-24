@@ -198,7 +198,7 @@ void set_units(void)
  */
 void open_outputfiles(void)
 {
-  char mode[2], buf[200];
+  char mode[2], buf[500];
 
   if(ThisTask != 0)		/* only the root processor writes to the log files */
     return;
@@ -515,6 +515,11 @@ void read_parameter_file(char *fname)
 
       strcpy(tag[nt], "SnapFormat");
       addr[nt] = &All.SnapFormat;
+      id[nt++] = INT;
+
+      /* PJC number of digits for snapshot file numbers*/
+      strcpy(tag[nt], "SnapDigits");
+      addr[nt] = &All.SnapDigits;
       id[nt++] = INT;
 
       strcpy(tag[nt], "NumFilesPerSnapshot");

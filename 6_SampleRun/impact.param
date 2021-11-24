@@ -10,6 +10,7 @@ CpuFile           cpu.txt
 
 RestartFile       restart
 SnapshotFileBase  snapshot
+SnapDigits	  4
 
 OutputListFilename    parameterfiles/output_list.txt
 

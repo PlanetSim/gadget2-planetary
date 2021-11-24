@@ -34,7 +34,7 @@ static void byten(void *x, size_t n, int modus);
  */
 void restart(int modus)
 {
-  char buf[200], buf_bak[200], buf_mv[500];
+  char buf[500], buf_bak[500], buf_mv[1100];
   double save_PartAllocFactor, save_TreeAllocFactor;
   int i, nprocgroup, masterTask, groupTask, old_MaxPart, old_MaxNodes;
   struct global_data_all_processes all_task0;

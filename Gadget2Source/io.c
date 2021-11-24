@@ -95,10 +95,22 @@ void savepositions(int num)
 
   fill_Tab_IO_Labels();
 
-  if(All.NumFilesPerSnapshot > 1)
-    sprintf(buf, "%s%s_%03d.%d", All.OutputDir, All.SnapshotFileBase, num, filenr);
-  else
-    sprintf(buf, "%s%s_%03d", All.OutputDir, All.SnapshotFileBase, num);
+  if(All.NumFilesPerSnapshot > 1){
+    if(All.SnapDigits == 4)
+      sprintf(buf, "%s%s_%04d.%d", All.OutputDir, All.SnapshotFileBase, num, filenr);
+    else if(All.SnapDigits == 5)
+      sprintf(buf, "%s%s_%05d.%d", All.OutputDir, All.SnapshotFileBase, num, filenr);
+    else
+      sprintf(buf, "%s%s_%03d.%d", All.OutputDir, All.SnapshotFileBase, num, filenr);
+  }
+  else{
+    if(All.SnapDigits == 4)
+      sprintf(buf, "%s%s_%04d", All.OutputDir, All.SnapshotFileBase, num);
+    else if(All.SnapDigits == 5)
+      sprintf(buf, "%s%s_%05d", All.OutputDir, All.SnapshotFileBase, num);
+    else
+      sprintf(buf, "%s%s_%03d", All.OutputDir, All.SnapshotFileBase, num);
+  }
 
   ngroups = All.NumFilesPerSnapshot / All.NumFilesWrittenInParallel;
   if((All.NumFilesPerSnapshot % All.NumFilesWrittenInParallel))

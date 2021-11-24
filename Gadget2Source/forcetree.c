@@ -2833,7 +2833,7 @@ int force_treeevaluate_direct(int target, int mode)
 void dump_particles(void)
 {
   FILE *fd;
-  char buffer[200];
+  char buffer[500];
   int i;
 
   sprintf(buffer, "particles%d.dat", ThisTask);

@@ -98,6 +98,10 @@ within the files. In this way, comments in the Gadget User Guide are all still
 true as long as it is realised that they refer to /blocks/ within the files
 regardless of what values they might contain.
 
+PJC added a new parameter 'SnapDigits' to select number of digits to use for 
+snapshot numbering; i.e. snapshot_000 vs snapshot_0000. Allowed values are 3, 
+4, or 5, otherwise defaults to 3.
+
 
 4. MISC. & SMALL EDITS BY RAM
 -----------------------------

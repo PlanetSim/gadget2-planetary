@@ -615,7 +615,7 @@ void read_file(char *fname, int readTask, int lastTask)
 int find_files(char *fname)
 {
   FILE *fd;
-  char buf[200], buf1[200];
+  char buf[500], buf1[500];
   int dummy;
 
   sprintf(buf, "%s.%d", fname, 0);
