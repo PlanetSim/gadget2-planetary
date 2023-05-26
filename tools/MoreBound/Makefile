@@ -18,5 +18,9 @@ $(EXEC): $(OBJS)
 
 $(OBJS): $(INCL)
 
+test: $(EXEC)
+	time ./$(EXEC) snapshot_720 bndparam.txt
+	diff snapshot_720_b.txt test_720.backup.txt
+
 clean :
 	rm -f *.o $(EXEC)
