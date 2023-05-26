@@ -1,20 +1,19 @@
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "globalvars.h"
 #include "nrsrc/nrutil.h"
 
-
-void load_particles( struct particle_data *p, struct io_header *header ) {
+void load_particles(struct particle_data *p, struct io_header *header) {
 
   FILE *fd;
   int i, blksize;
 
 #define SKIP fread(&blksize, sizeof(int), 1, fd);
 
-  if( !(fd = fopen(infile, "r")) ) {    
-    printf( "Could not find file '%s'\n", infile);
+  if (!(fd = fopen(infile, "r"))) {
+    printf("Could not find file '%s'\n", infile);
     exit(13);
   }
 
@@ -23,15 +22,15 @@ void load_particles( struct particle_data *p, struct io_header *header ) {
   SKIP;
 
   p->Ntot = header->npart[0];
-  p->pos  = matrix(1, p->Ntot, 1, 3);
-  p->vel  = matrix(1, p->Ntot, 1, 3);
-  p->id   = ivector(1, p->Ntot);
-  p->bnd  = ivector(1, p->Ntot);
-  p->m    = vector(1, p->Ntot);
-  p->s    = vector(1, p->Ntot);
-  p->rho  = vector(1, p->Ntot);
+  p->pos = matrix(1, p->Ntot, 1, 3);
+  p->vel = matrix(1, p->Ntot, 1, 3);
+  p->id = ivector(1, p->Ntot);
+  p->bnd = ivector(1, p->Ntot);
+  p->m = vector(1, p->Ntot);
+  p->s = vector(1, p->Ntot);
+  p->rho = vector(1, p->Ntot);
   p->hsml = vector(1, p->Ntot);
-  p->pot  = vector(1, p->Ntot);
+  p->pot = vector(1, p->Ntot);
 
   SKIP;
   fread(&p->pos[1][1], sizeof(float), 3 * p->Ntot, fd);
@@ -67,7 +66,6 @@ void load_particles( struct particle_data *p, struct io_header *header ) {
 
   fclose(fd);
 
-  for(i = 1, p->Mtot = 0; i <= p->Ntot; i++)
+  for (i = 1, p->Mtot = 0; i <= p->Ntot; i++)
     p->Mtot += p->m[i];
-
 }
