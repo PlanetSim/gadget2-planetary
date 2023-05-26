@@ -1,11 +1,89 @@
 #include <math.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "globalvars.h"
 
+#define IS_UNBOUND 0
+
 int calculate_material(int id);
 double calculate_potential(struct particle_data *p, int index, int remnant);
+
+typedef struct _CentreOfMass {
+  double x, y, z, vx, vy, vz;
+} CentreOfMass;
+
+void update_centre_of_mass(CentreOfMass *com, struct particle_data *p,
+                           size_t i) {
+  com->x = p->pos[i][1] * p->m[i];
+  com->y = p->pos[i][2] * p->m[i];
+  com->z = p->pos[i][3] * p->m[i];
+  com->vx = p->vel[i][1] * p->m[i];
+  com->vy = p->vel[i][2] * p->m[i];
+  com->vz = p->vel[i][3] * p->m[i];
+}
+
+size_t find_particle_potential_min(struct particle_data *p, int remnant) {
+  size_t selected = 1;
+  double potmin = calculate_potential(p, selected, remnant);
+
+  for (size_t i = 2; i <= p->Ntot; ++i) {
+    if (p->bnd[i] != IS_UNBOUND) {
+      // ignore if particle is already bound to something
+      continue;
+    }
+
+    double pot = calculate_potential(p, i, remnant);
+    if (pot < potmin) {
+      potmin = pot;
+      selected = i;
+    }
+  }
+
+  return selected;
+}
+
+float square_relative_velocity(float vel[3], CentreOfMass com) {
+  float v1 = (vel[1] - com.vx);
+  float v2 = (vel[2] - com.vy);
+  float v3 = (vel[3] - com.vz);
+  return (v1 * v1) + (v2 * v2) + (v3 * v3);
+}
+
+float square_distance(float pos[3], CentreOfMass com) {
+  float x = (pos[1] - com.x);
+  float y = (pos[2] - com.y);
+  float z = (pos[3] - com.z);
+  return (x * x) + (y * y) + (z * z);
+}
+
+size_t find_and_update_bound(struct particle_data *p, CentreOfMass data,
+                             double *total_bound_mass, size_t remnant) {
+  size_t num_bound = 0;
+  double bound_mass = *total_bound_mass;
+  for (size_t i = 1; i <= p->Ntot; ++i) {
+    if (p->bnd[i] != IS_UNBOUND) {
+      continue;
+    }
+
+    float rel_velocity = square_relative_velocity(p->vel[i], data);
+    float distance = sqrt(square_distance(p->pos[i], data));
+    // kinetic & potential energy in this COM frame
+    float ke = 0.5 * p->m[i] * rel_velocity;
+    float pe = -G * bound_mass * p->m[i] / distance;
+
+    if (ke + pe < 0) {
+      // particle is bound
+      p->bnd[i] = remnant;
+      update_centre_of_mass(&data, p, i);
+      num_bound += 1;
+      bound_mass += p->m[i];
+    }
+  }
+  *total_bound_mass = bound_mass;
+  return num_bound;
+}
 
 /*
  * Finds particle closest to potential minimum, then uses this as a seed for
@@ -18,18 +96,13 @@ double calculate_potential(struct particle_data *p, int index, int remnant);
 void bound(struct particle_data *p) {
 
   int i, j, count;
-  double potmin;
-  double v2, rad, ke, pe;              // particle w.r.t. CO-bound-M data
   double oldm, bndm, bndm_fe, bndm_si; // data from last iteration
-  double x, y, z, vx, vy, vz;          // centre-of-bound-mass data
-  double xm, ym, zm, vxm, vym, vzm;    // as above, weigthed by mass
+  CentreOfMass data;
+  CentreOfMass mass_weighted;
+
   double bndm_cr, totm;
   int remnant = 1; // ordinal representing the remnant that we're finding
   int nbound;      // number of particles bound to the current remnant
-  double pot; // potential of the particle discounting all particles already
-              // considered to be bound
-  int seedindex;
-  short int first = 1;
 
   // set all particles as unbound
   for (i = 1; i <= p->Ntot; i++) {
@@ -38,41 +111,13 @@ void bound(struct particle_data *p) {
 
   // loop through remnants
   do {
-
+    mass_weighted = (CentreOfMass){0, 0, 0, 0, 0, 0};
     // reset bound mass data
-    xm = ym = zm = x = y = z = 0.0;
-    vxm = vym = vzm = vx = vy = vz = 0.0;
-    bndm = 0;
     nbound = 1;
-    potmin = 0;
 
-    // find the particle closest to the potential minimum
-    first = 1;
-    for (i = 1; i <= p->Ntot; i++) {
-
-      if (p->bnd[i] != 0) {
-        continue; // ignore if this particle's already bound to something
-      }
-
-      pot = calculate_potential(p, i, remnant);
-
-      // for a lower-potential particle, use this as the seed instead (or if
-      // it's the first valid particle)
-      if ((first == 1) || (pot < potmin)) { // p->pot[i]
-        xm = p->pos[i][1] * p->m[i];
-        ym = p->pos[i][2] * p->m[i];
-        zm = p->pos[i][3] * p->m[i];
-        vxm = p->vel[i][1] * p->m[i];
-        vym = p->vel[i][2] * p->m[i];
-        vzm = p->vel[i][3] * p->m[i];
-        potmin = pot;
-        bndm = p->m[i];
-        seedindex = i;
-        if (first == 1)
-          first = 0;
-      }
-      //      if(remnant>1) printf("Pot: %g, Potmin: %g\n",pot,potmin);
-    }
+    size_t seedindex = find_particle_potential_min(p, remnant);
+    update_centre_of_mass(&mass_weighted, p, seedindex);
+    bndm = p->m[seedindex];
 
     p->bnd[seedindex] = remnant; // set the seed as bound
 
@@ -84,45 +129,17 @@ void bound(struct particle_data *p) {
     while ((fabs(oldm - bndm) / oldm > tol) && (count < maxit)) {
       oldm = bndm;
 
-      x = xm / bndm;
-      y = ym / bndm;
-      z = zm / bndm;
-      vx = vxm / bndm;
-      vy = vym / bndm;
-      vz = vzm / bndm;
+      double ibndm = 1 / bndm;
 
-      // search throuh particles, finding ones bound w.r.t. the seed
-      for (i = 1; i <= p->Ntot; i++) {
+      data.x = mass_weighted.x * ibndm;
+      data.y = mass_weighted.y * ibndm;
+      data.z = mass_weighted.z * ibndm;
+      data.vx = mass_weighted.vx * ibndm;
+      data.vy = mass_weighted.vy * ibndm;
+      data.vz = mass_weighted.vz * ibndm;
 
-        if (p->bnd[i] != 0)
-          continue; // ignore if already bound to something
-
-        // squared relative velocity to centre-of-bound-mass
-        v2 = (p->vel[i][1] - vx) * (p->vel[i][1] - vx) +
-             (p->vel[i][2] - vy) * (p->vel[i][2] - vy) +
-             (p->vel[i][3] - vz) * (p->vel[i][3] - vz);
-        // distance from centre of bound mass
-        rad = sqrt((p->pos[i][1] - x) * (p->pos[i][1] - x) +
-                   (p->pos[i][2] - y) * (p->pos[i][2] - y) +
-                   (p->pos[i][3] - z) * (p->pos[i][3] - z));
-
-        // kinetic & potential energy in this COM frame
-        ke = 0.5 * p->m[i] * v2;
-        pe = -G * bndm * p->m[i] / rad;
-
-        if (ke + pe < 0.0) { // particle is bound
-          p->bnd[i] = remnant;
-          bndm += p->m[i];
-          xm += p->pos[i][1] * p->m[i];
-          ym += p->pos[i][2] * p->m[i];
-          zm += p->pos[i][3] * p->m[i];
-          vxm += p->vel[i][1] * p->m[i];
-          vym += p->vel[i][2] * p->m[i];
-          vzm += p->vel[i][3] * p->m[i];
-          nbound += 1;
-        }
-      }
-
+      // search through particles, finding ones bound w.r.t. the seed
+      nbound += find_and_update_bound(p, data, &bndm, remnant);
       count++;
     }
 
