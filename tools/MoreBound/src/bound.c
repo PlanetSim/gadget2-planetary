@@ -42,8 +42,7 @@ double calculate_potential(const ParticleData *pd, size_t index, int remnant) {
       continue;
     }
 
-    float seperation =
-        fvec_square_distance(reference, pd_get_pos(pd, i));
+    float seperation = fvec_square_distance(reference, pd_get_pos(pd, i));
     // TODO: is this right? only update potential if they are really far away?
     if (seperation > 1e10) {
       potential -= G * pd->mass[i] / sqrtf(seperation);
@@ -64,22 +63,23 @@ typedef struct _CentreOfMass {
   FVec3 pos, vel;
 } CentreOfMass;
 
-void update_centre_of_mass(CentreOfMass *com, const ParticleData *pd, size_t i) {
+void update_centre_of_mass(CentreOfMass *com, const ParticleData *pd,
+                           size_t i) {
   com->pos = fvec_mult(pd_get_pos(pd, i), pd->mass[i]);
   com->vel = fvec_mult(pd_get_vel(pd, i), pd->mass[i]);
 }
 
 typedef struct _MinPotentialThreadStorage {
-    const ParticleData *pd;
-    int remnant;
-    double minimum_potential;
-    size_t index;
-    size_t start;
-    size_t end;
+  const ParticleData *pd;
+  int remnant;
+  double minimum_potential;
+  size_t index;
+  size_t start;
+  size_t end;
 } MinPotentialThreadStorage;
 
 int worker_find_min_potential(void *arg) {
-  MinPotentialThreadStorage *ts = (MinPotentialThreadStorage*) arg;
+  MinPotentialThreadStorage *ts = (MinPotentialThreadStorage *)arg;
   const ParticleData *pd = ts->pd;
   int remnant = ts->remnant;
 
@@ -105,36 +105,35 @@ int worker_find_min_potential(void *arg) {
 }
 
 size_t find_particle_potential_min(const ParticleData *pd, int remnant) {
-    thrd_t threads[N_THREADS - 1];
-    MinPotentialThreadStorage storage[N_THREADS - 1];
-    const size_t workload = pd->total_number / N_THREADS;
-    
-    size_t i;
-    // launch all worker threads
-    for (i = 0; i < N_THREADS - 1; ++i) {
-        size_t start = i * workload;
-        storage[i] = (MinPotentialThreadStorage) {
-            pd, remnant, 0, 0, start, start + workload,
-        };
-        thrd_create(&threads[i], worker_find_min_potential, &storage[i]);
-    }
+  thrd_t threads[N_THREADS - 1];
+  MinPotentialThreadStorage storage[N_THREADS - 1];
+  const size_t workload = pd->total_number / N_THREADS;
 
-    MinPotentialThreadStorage current = (MinPotentialThreadStorage) {
-        pd, remnant, 0, 0, (N_THREADS - 1) * workload, pd->total_number
+  size_t i;
+  // launch all worker threads
+  for (i = 0; i < N_THREADS - 1; ++i) {
+    size_t start = i * workload;
+    storage[i] = (MinPotentialThreadStorage){
+        pd, remnant, 0, 0, start, start + workload,
     };
-    // launch current thread
-    worker_find_min_potential((void *) &current);
+    thrd_create(&threads[i], worker_find_min_potential, &storage[i]);
+  }
 
-    // join threads and aggregate results
-    for (i = 0; i < N_THREADS - 1; ++i) {
-        thrd_join(threads[i], NULL);
-        // if a thread found somethin better, update the current
-        if (current.minimum_potential > storage[i].minimum_potential) {
-            current.minimum_potential = storage[i].minimum_potential;
-            current.index = storage[i].index;
-        }
+  MinPotentialThreadStorage current = (MinPotentialThreadStorage){
+      pd, remnant, 0, 0, (N_THREADS - 1) * workload, pd->total_number};
+  // launch current thread
+  worker_find_min_potential((void *)&current);
+
+  // join threads and aggregate results
+  for (i = 0; i < N_THREADS - 1; ++i) {
+    thrd_join(threads[i], NULL);
+    // if a thread found somethin better, update the current
+    if (current.minimum_potential > storage[i].minimum_potential) {
+      current.minimum_potential = storage[i].minimum_potential;
+      current.index = storage[i].index;
     }
-    return current.index;
+  }
+  return current.index;
 }
 
 float fvec_square_distance(FVec3 vel1, FVec3 vel2) {
@@ -178,9 +177,9 @@ size_t find_and_update_bound(const ParticleData *pd, CentreOfMass data,
 }
 
 typedef struct _Remnant {
-    int id;
-    size_t total_bound;
-    double mass;
+  int id;
+  size_t total_bound;
+  double mass;
 } Remnant;
 
 Remnant calculate_remnant(const ParticleData *pd, int remnant) {
@@ -188,7 +187,7 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
 
   // number of particles bound to the current remnant
   int nbound = 1;
-    
+
   printf("Finding potential minimum\n");
   size_t seedindex = find_particle_potential_min(pd, remnant);
   printf("Seedindex found %ld\n", seedindex);
@@ -226,15 +225,17 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
   printf("REMNANT %d: Iteration completed in %d/%d steps. Mass of "
          "%gg.\nNumber of particles: %d\nFractional difference: %g\n\n",
          remnant, count, maxit, bound_mass, nbound, fractional_difference);
-  return (Remnant) {remnant, nbound, bound_mass};
+  return (Remnant){remnant, nbound, bound_mass};
 }
 
 int compare_remnant_mass(const void *ptr_a, const void *ptr_b) {
-    Remnant *a = (Remnant *) ptr_a;
-    Remnant *b = (Remnant *) ptr_b;
-    if (a->mass == b->mass) return 0;
-    if (a->mass > b->mass) return -1;
-    return 1;
+  Remnant *a = (Remnant *)ptr_a;
+  Remnant *b = (Remnant *)ptr_b;
+  if (a->mass == b->mass)
+    return 0;
+  if (a->mass > b->mass)
+    return -1;
+  return 1;
 }
 
 /*
@@ -254,8 +255,8 @@ void calculate_binding(const ParticleData *pd) {
 
   int total_bound = 0;
   // ordinal representing the remnant that we're finding
-  
-  Remnant remnants[N_REMNANTS];  
+
+  Remnant remnants[N_REMNANTS];
   for (int id = 0; id < N_REMNANTS || total_bound >= minparts; ++id) {
     remnants[id] = calculate_remnant(pd, id + 1);
   }
@@ -265,17 +266,18 @@ void calculate_binding(const ParticleData *pd) {
 
   int lookup[N_REMNANTS];
   for (i = 0; i < N_REMNANTS; ++i) {
-      size_t index = remnants[i].id - 1;
-      lookup[index] = i;
-      if (index != i) {
-          printf("new ordering: %ld -> %ld (mass = %g)\n", index + 1, i + 1, remnants[i].mass); 
-      }
+    size_t index = remnants[i].id - 1;
+    lookup[index] = i;
+    if (index != i) {
+      printf("new ordering: %ld -> %ld (mass = %g)\n", index + 1, i + 1,
+             remnants[i].mass);
+    }
   }
 
   // update them with negative values, and then we multiply at the end to revert
   for (i = 0; i < pd->total_number; ++i) {
     if (pd->bnd[i] IS_BOUND) {
-        pd->bnd[i] = -lookup[pd->bnd[i] - 1]; 
+      pd->bnd[i] = -lookup[pd->bnd[i] - 1];
     }
   }
   for (i = 0; i < pd->total_number; ++i) {

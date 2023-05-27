@@ -21,7 +21,7 @@
  * 0 based on whether they're considered bound or not. Commented and edited
  * by JMAA
  *
- * May 2023: updated by Fergus 
+ * May 2023: updated by Fergus
  *  ++ multi-threading and modifying underlying data structures
  *  ++ made the program a little more verbose as a heartbeat
  */
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
   ParticleData pd;
   IOHeader header;
-  
+
   int status = pd_read(&pd, &header);
   if (status < 0) {
     return -status;

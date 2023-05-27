@@ -6,8 +6,8 @@ int save_output(const ParticleData *pd, char *filename) {
   FILE *fp = fopen(filename, "w");
 
   if (!fp) {
-      printf("Unable to open file '%s' for writing\n", fout);
-      return -1;
+    printf("Unable to open file '%s' for writing\n", fout);
+    return -1;
   }
 
   fprintf(fp, "#Id\tBound\n");
