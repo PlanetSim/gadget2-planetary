@@ -37,7 +37,8 @@ int main(int argc, char *argv[]) {
   pd_read(&pd, &header);
   printf("LOAD DONE\n");
 
-  printf("Read in %d objects with total mass %g\n", pd.total_number, pd.total_mass);
+  printf("Read in %d objects with total mass %g\n", pd.total_number,
+         pd.total_mass);
 
   calculate_binding(&pd);
   pd_free(&pd);

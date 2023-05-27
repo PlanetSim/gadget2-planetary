@@ -7,4 +7,3 @@ int maxit;        // maximum number of iterations
 int minparts;     // minimum number of particles to be considered a remnant
 int nMat;         // number of materials present
 int idskip;       // id skip between materials
-

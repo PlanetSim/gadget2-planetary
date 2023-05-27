@@ -4,16 +4,18 @@
 #include "globalvars.h"
 
 typedef struct _FVec3 {
-    float x, y, z;
+  float x, y, z;
 } FVec3;
 
-typedef struct _ParticleData {
-    int *id;
-    int *bnd;
-    float *pos, *vel, *mass, *s, *rho, *hsml, *potential;
+float fvec_square_distance(FVec3 vel1, FVec3 vel2);
 
-    double total_mass;
-    int total_number;
+typedef struct _ParticleData {
+  int *id;
+  int *bnd;
+  float *pos, *vel, *mass, *s, *rho, *hsml, *potential;
+
+  double total_mass;
+  int total_number;
 } ParticleData;
 
 int pd_init(ParticleData *pd, size_t N);
