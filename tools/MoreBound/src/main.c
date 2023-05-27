@@ -20,27 +20,39 @@
  * collision from a Gadget output. Outputs a table of particle ids & a 1 or
  * 0 based on whether they're considered bound or not. Commented and edited
  * by JMAA
+ *
+ * May 2023: updated by Fergus 
+ *  ++ multi-threading and modifying underlying data structures
+ *  ++ made the program a little more verbose as a heartbeat
  */
 
 int main(int argc, char *argv[]) {
   if (argc != 3) {
     printf("Usage: ./MoreBound <snapshot file> <parameter file>\n\n");
-    exit(0);
+    return 0;
   }
   readparam(argv[1], argv[2]);
-
   printf("Configuration file read. Max iterations %d\n", maxit);
 
   ParticleData pd;
   IOHeader header;
-
-  pd_read(&pd, &header);
-  printf("LOAD DONE\n");
-
+  
+  int status = pd_read(&pd, &header);
+  if (status < 0) {
+    return -status;
+  }
   printf("Read in %d objects with total mass %g\n", pd.total_number,
          pd.total_mass);
 
   calculate_binding(&pd);
+  printf("Writing output to '%s'\n", fout);
+
+  status = save_output(&pd, fout);
+  if (status < 0) {
+    return -status;
+  }
+
+  // free allocated memory
   pd_free(&pd);
   return 0;
 }

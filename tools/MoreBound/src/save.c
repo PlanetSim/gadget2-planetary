@@ -1,24 +1,20 @@
-#include <math.h>
+#include "particledata.h"
+
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "globalvars.h"
+int save_output(ParticleData *pd, char *filename) {
+  FILE *fp = fopen(filename, "w");
 
-void save_output(struct particle_data *p) {
-
-  FILE *fp;
-  int i;
-
-  if (!(fp = fopen(fout, "w"))) {
-    printf("Unable to open file %s for writing.\n", fout);
-    exit(0);
+  if (!fp) {
+      printf("Unable to open file '%s' for writing\n", fout);
+      return -1;
   }
 
   fprintf(fp, "#Id\tBound\n");
-
-  for (i = 1; i <= p->Ntot; i++) {
-    fprintf(fp, "%d\t%d\n", p->id[i], p->bnd[i]);
+  for (size_t i = 0; i < pd->total_number; ++i) {
+    fprintf(fp, "%d\t%d\n", pd->id[i], pd->bnd[i]);
   }
 
   fclose(fp);
+  return 0;
 }

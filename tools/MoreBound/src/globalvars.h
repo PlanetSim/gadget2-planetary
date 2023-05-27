@@ -36,6 +36,5 @@ typedef struct io_header {
 } IOHeader;
 
 void readparam(char *, char *);
-void load_particles(struct particle_data *, struct io_header *);
-void save_output(struct particle_data *);
+
 #endif
