@@ -1,9 +1,11 @@
+# name of the output file
+remnant_id.txt
 # percentage tollerance for mass change between iterations
 0.0000001
 # maximum number of iterations
 1000
-#minimum number of particles to be considered a remnant
-50
+# minimum number of particles to be consider a remnant
+30000
 # number of materials present
 2
 # id skip between materials

@@ -7,11 +7,11 @@ OBJS	= main.o globalvars.o \
 
 INCL	= globalvars.h nrsrc/nrutil.h
 
-CFLAGS	= -O3 
+CFLAGS	= -O3 -ffast-math -Wall -Wextra -flto
 
 LIBS	= -lm
 
-CC	= gcc
+CC	= clang
 
 $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(EXEC) $(LIBS)
