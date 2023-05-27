@@ -7,7 +7,7 @@
 #include "globalvars.h"
 #include "particledata.h"
 
-#define N_THREADS 4
+#define N_THREADS 12
 
 #define IS_UNBOUND == 0
 #define IS_BOUND != 0
@@ -42,10 +42,10 @@ double calculate_potential(ParticleData *pd, size_t index, int remnant) {
     }
 
     float seperation =
-        sqrtf(fvec_square_distance(reference, pd_get_pos(pd, i)));
+        fvec_square_distance(reference, pd_get_pos(pd, i));
     // TODO: is this right? only update potential if they are really far away?
-    if (seperation > 10.e5) {
-      potential -= G * pd->mass[i] / seperation;
+    if (seperation > 1e10) {
+      potential -= G * pd->mass[i] / sqrtf(seperation);
     }
   }
 
@@ -68,11 +68,24 @@ void update_centre_of_mass(CentreOfMass *com, ParticleData *pd, size_t i) {
   com->vel = fvec_mult(pd_get_vel(pd, i), pd->mass[i]);
 }
 
-size_t find_particle_potential_min(ParticleData *pd, int remnant) {
+typedef struct _MinPotentialThreadStorage {
+    ParticleData *pd;
+    int remnant;
+    double minimum_potential;
+    size_t index;
+    size_t start;
+    size_t end;
+} MinPotentialThreadStorage;
+
+int worker_find_min_potential(void *arg) {
+  MinPotentialThreadStorage *ts = (MinPotentialThreadStorage*) arg;
+  ParticleData *pd = ts->pd;
+  int remnant = ts->remnant;
+
   size_t selected = 0;
   double potmin = calculate_potential(pd, selected, remnant);
 
-  for (int i = 0; i < pd->total_number; ++i) {
+  for (size_t i = ts->start; i < ts->end; ++i) {
     if (pd->bnd[i] IS_BOUND) {
       // ignore if particle is already bound to something
       continue;
@@ -85,7 +98,42 @@ size_t find_particle_potential_min(ParticleData *pd, int remnant) {
     }
   }
 
-  return selected;
+  ts->minimum_potential = potmin;
+  ts->index = selected;
+  return 0;
+}
+
+size_t find_particle_potential_min(ParticleData *pd, int remnant) {
+    thrd_t threads[N_THREADS - 1];
+    MinPotentialThreadStorage storage[N_THREADS - 1];
+    const size_t workload = pd->total_number / N_THREADS;
+    
+    size_t i;
+    // launch all worker threads
+    for (i = 0; i < N_THREADS - 1; ++i) {
+        size_t start = i * workload;
+        storage[i] = (MinPotentialThreadStorage) {
+            pd, remnant, 0, 0, start, start + workload,
+        };
+        thrd_create(&threads[i], worker_find_min_potential, &storage[i]);
+    }
+
+    MinPotentialThreadStorage current = (MinPotentialThreadStorage) {
+        pd, remnant, 0, 0, (N_THREADS - 1) * workload, pd->total_number
+    };
+    // launch current thread
+    worker_find_min_potential((void *) &current);
+
+    // join threads and aggregate results
+    for (i = 0; i < N_THREADS - 1; ++i) {
+        thrd_join(threads[i], NULL);
+        // if a thread found somethin better, update the current
+        if (current.minimum_potential > storage[i].minimum_potential) {
+            current.minimum_potential = storage[i].minimum_potential;
+            current.index = storage[i].index;
+        }
+    }
+    return current.index;
 }
 
 float fvec_square_distance(FVec3 vel1, FVec3 vel2) {
@@ -137,6 +185,7 @@ int calculate_remnant(ParticleData *pd, int remnant) {
   printf("Finding potential minimum\n");
   size_t seedindex = find_particle_potential_min(pd, remnant);
   printf("Seedindex found %ld\n", seedindex);
+
   // set the seed as bound to current remnant
   pd->bnd[seedindex] = remnant;
 
