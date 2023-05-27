@@ -15,7 +15,7 @@ void readparam(char *fname, char *pfile) {
   }
 
   // fgets(buf, 100, fp1);
-  sscanf(fname, "%s", &buf);
+  sscanf(fname, "%s", buf);
   strcpy(infile, buf);
   // fgets(buf, 100, fp1);
 
@@ -23,7 +23,9 @@ void readparam(char *fname, char *pfile) {
   //  fscanf(fp1, "%s", &buf);
   strcpy(fout, infile);
   strcat(fout, "_b.txt");
-  //  fgets(buf, 100, fp1);
+
+  fgets(buf, 100, fp1);
+  fgets(buf, 100, fp1);
 
   fgets(buf, 100, fp1);
   fscanf(fp1, "%lf", &tol);

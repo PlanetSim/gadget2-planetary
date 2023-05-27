@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "globalvars.h"
+#include "particledata.h"
 
 /*
  * MoreBound
@@ -22,24 +23,23 @@
  */
 
 int main(int argc, char *argv[]) {
-
-  struct io_header H;
-  struct particle_data P;
-
   if (argc != 3) {
     printf("Usage: ./MoreBound <snapshot file> <parameter file>\n\n");
     exit(0);
   }
   readparam(argv[1], argv[2]);
 
-  load_particles(&P, &H);
+  printf("Configuration file read. Max iterations %d\n", maxit);
+
+  ParticleData pd;
+  IOHeader header;
+
+  pd_read(&pd, &header);
   printf("LOAD DONE\n");
 
-  bound(&P);
-  printf("BOUND DONE\n");
+  printf("Read in %d objects with total mass %g\n", pd.total_number, pd.total_mass);
 
-  save_output(&P);
-  printf("OUTPUT SAVED\n");
-
+  calculate_binding(&pd);
+  pd_free(&pd);
   return 0;
 }

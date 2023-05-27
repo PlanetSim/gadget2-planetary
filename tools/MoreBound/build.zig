@@ -7,9 +7,8 @@ pub fn addCSource(exe: *std.build.CompileStep) void {
             "src/bound.c",
             "src/readparam.c",
             "src/main.c",
-            "src/nrsrc/nrutil.c",
-            "src/save.c",
-            "src/load.c",
+            "src/particledata.c",
+            // "src/save.c",
         },
         &.{
             "-Wall",
