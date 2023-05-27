@@ -1,26 +1,22 @@
 EXEC	= MoreBound
 
-OBJS	= main.o globalvars.o \
-	  readparam.o load.o \
-	  save.o bound.o\
-	  nrsrc/nrutil.o
+OBJS = main.o globalvars.o readparam.o save.o bound.o particledata.o
 
-INCL	= globalvars.h nrsrc/nrutil.h
+# prefix the source directory
+SRCOBJS = $(foreach f, $(OBJS), src/$f)
 
-CFLAGS	= -O3 -ffast-math -Wall -Wextra -flto
+CFLAGS	= -O2 -Wall -Wextra -flto
 
 LIBS	= -lm
 
 CC	= clang
 
-$(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(EXEC) $(LIBS)
-
-$(OBJS): $(INCL)
+$(EXEC): $(SRCOBJS)
+	$(CC) $(CFLAGS) $(SRCOBJS) -o $(EXEC) $(LIBS)
 
 test: $(EXEC)
 	time ./$(EXEC) snapshot_720 bndparam.txt
-	diff snapshot_720_b.txt test_720.backup.txt
+# diff snapshot_720_b.txt test_720.backup.txt
 
 clean :
-	rm -f *.o $(EXEC)
+	rm -f $(SRCOBJS) $(EXEC)

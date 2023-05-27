@@ -8,11 +8,12 @@ pub fn addCSource(exe: *std.build.CompileStep) void {
             "src/readparam.c",
             "src/main.c",
             "src/particledata.c",
-            // "src/save.c",
+            "src/save.c",
         },
         &.{
             "-Wall",
-            "-W",
+            "-Wextra",
+            "-flto",
         },
     );
     exe.linkLibC();
