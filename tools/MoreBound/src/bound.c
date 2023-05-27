@@ -200,6 +200,7 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
   update_centre_of_mass(&weighted, pd, seedindex);
 
   double old_bound_mass, bound_mass = pd->mass[seedindex];
+  double fractional_difference;
 
   int count = 0;
   while (count < maxit) {
@@ -215,16 +216,16 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
     nbound += find_and_update_bound(pd, current, &bound_mass, remnant);
     ++count;
 
-    int converged =
-        (fabs(old_bound_mass - bound_mass) / old_bound_mass) < tol;
-    if (converged)
+    fractional_difference =
+        (fabs(old_bound_mass - bound_mass) / old_bound_mass);
+    if (fractional_difference < tol)
       break;
   }
 
   // print status of iteration
   printf("REMNANT %d: Iteration completed in %d/%d steps. Mass of "
-         "%gg.\nNumber of particles: %d\n\n",
-         remnant, count, maxit, bound_mass, nbound);
+         "%gg.\nNumber of particles: %d\nFractional difference: %g\n\n",
+         remnant, count, maxit, bound_mass, nbound, fractional_difference);
   return (Remnant) {remnant, nbound, bound_mass};
 }
 
