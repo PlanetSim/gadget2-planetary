@@ -113,7 +113,7 @@ int calculate_remnant(ParticleData *pd, int remnant) {
     ++count;
 
     double converged =
-        (fabs(old_bound_mass - bound_mass) / old_bound_mass) > tol;
+        (fabs(old_bound_mass - bound_mass) / old_bound_mass) < tol;
     if (converged)
       break;
   }
