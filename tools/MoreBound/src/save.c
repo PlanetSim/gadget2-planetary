@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-int save_output(ParticleData *pd, char *filename) {
+int save_output(const ParticleData *pd, char *filename) {
   FILE *fp = fopen(filename, "w");
 
   if (!fp) {

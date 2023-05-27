@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   if (status < 0) {
     return -status;
   }
-  printf("Read in %d objects with total mass %g\n", pd.total_number,
+  printf("Read in %ld objects with total mass %g\n", pd.total_number,
          pd.total_mass);
 
   calculate_binding(&pd);

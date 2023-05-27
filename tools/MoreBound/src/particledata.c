@@ -36,7 +36,7 @@ void pd_free(ParticleData *pd) {
   free(pd->pos);
 }
 
-FVec3 pd_get_vel(ParticleData *pd, size_t i) {
+FVec3 pd_get_vel(const ParticleData *pd, size_t i) {
   FVec3 v;
   size_t offset = i * 3;
   v.x = pd->vel[offset];
@@ -45,7 +45,7 @@ FVec3 pd_get_vel(ParticleData *pd, size_t i) {
   return v;
 }
 
-FVec3 pd_get_pos(ParticleData *pd, size_t i) {
+FVec3 pd_get_pos(const ParticleData *pd, size_t i) {
   FVec3 v;
   size_t offset = i * 3;
   v.x = pd->pos[offset];
