@@ -33,7 +33,7 @@ double calculate_potential(const ParticleData *pd, size_t index, int remnant) {
 
   double potential = 0;
   // loop through particles, adding in the potentials
-  FVec3 reference = pd_get_pos(pd, index);
+  FVec3 *reference = pd_get_pos(pd, index);
   for (size_t i = 0; i < pd->total_number; ++i) {
     if (pd->bnd[i] IS_BOUND && pd->bnd[i] < remnant) {
       continue;
@@ -59,10 +59,10 @@ FVec3 fvec_mult(FVec3 v, float m) {
   return v;
 }
 
-void fvec_muladd(FVec3 *out, FVec3 v, float m) {
-  out->x += v.x * m;
-  out->y += v.y * m;
-  out->z += v.z * m;
+void fvec_muladd(FVec3 *out, const FVec3 *v, float m) {
+  out->x += v->x * m;
+  out->y += v->y * m;
+  out->z += v->z * m;
 }
 
 typedef struct _CentreOfMass {
@@ -142,10 +142,10 @@ size_t find_particle_potential_min(const ParticleData *pd, int remnant) {
   return current.index;
 }
 
-float fvec_square_distance(FVec3 vel1, FVec3 vel2) {
-  float v1 = (vel1.x - vel2.x);
-  float v2 = (vel1.y - vel2.y);
-  float v3 = (vel1.z - vel2.z);
+float fvec_square_distance(const FVec3 *vel1, const FVec3 *vel2) {
+  float v1 = (vel1->x - vel2->x);
+  float v2 = (vel1->y - vel2->y);
+  float v3 = (vel1->z - vel2->z);
   return (v1 * v1) + (v2 * v2) + (v3 * v3);
 }
 
@@ -162,8 +162,8 @@ size_t find_and_update_bound(const ParticleData *pd, CentreOfMass *weighted, Cen
       continue;
     }
 
-    float rel_velocity = fvec_square_distance(pd_get_vel(pd, i), data.vel);
-    float distance = sqrt(fvec_square_distance(pd_get_pos(pd, i), data.pos));
+    float rel_velocity = fvec_square_distance(pd_get_vel(pd, i), &data.vel);
+    float distance = sqrt(fvec_square_distance(pd_get_pos(pd, i), &data.pos));
 
     // kinetic & potential energy in this COM frame
     float ke = 0.5 * pd->mass[i] * rel_velocity;
