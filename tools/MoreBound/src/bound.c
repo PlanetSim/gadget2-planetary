@@ -2,12 +2,12 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <threads.h>
+#include <pthread.h>
 
 #include "globalvars.h"
 #include "particledata.h"
 
-#define N_THREADS 12
+#define N_THREADS 6
 #define N_REMNANTS 3
 
 #define IS_UNBOUND == 0
@@ -78,7 +78,7 @@ typedef struct _MinPotentialThreadStorage {
   size_t end;
 } MinPotentialThreadStorage;
 
-int worker_find_min_potential(void *arg) {
+void *worker_find_min_potential(void *arg) {
   MinPotentialThreadStorage *ts = (MinPotentialThreadStorage *)arg;
   const ParticleData *pd = ts->pd;
   int remnant = ts->remnant;
@@ -101,11 +101,11 @@ int worker_find_min_potential(void *arg) {
 
   ts->minimum_potential = potmin;
   ts->index = selected;
-  return 0;
+  return NULL;
 }
 
 size_t find_particle_potential_min(const ParticleData *pd, int remnant) {
-  thrd_t threads[N_THREADS - 1];
+  pthread_t threads[N_THREADS - 1];
   MinPotentialThreadStorage storage[N_THREADS - 1];
   const size_t workload = pd->total_number / N_THREADS;
 
@@ -116,7 +116,7 @@ size_t find_particle_potential_min(const ParticleData *pd, int remnant) {
     storage[i] = (MinPotentialThreadStorage){
         pd, remnant, 0, 0, start, start + workload,
     };
-    thrd_create(&threads[i], worker_find_min_potential, &storage[i]);
+    pthread_create(&threads[i], NULL, worker_find_min_potential, &storage[i]);
   }
 
   MinPotentialThreadStorage current = (MinPotentialThreadStorage){
@@ -126,7 +126,7 @@ size_t find_particle_potential_min(const ParticleData *pd, int remnant) {
 
   // join threads and aggregate results
   for (i = 0; i < N_THREADS - 1; ++i) {
-    thrd_join(threads[i], NULL);
+    pthread_join(threads[i], NULL);
     // if a thread found somethin better, update the current
     if (current.minimum_potential > storage[i].minimum_potential) {
       current.minimum_potential = storage[i].minimum_potential;

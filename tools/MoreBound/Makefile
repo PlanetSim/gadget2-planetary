@@ -5,9 +5,9 @@ OBJS = main.o globalvars.o readparam.o save.o bound.o particledata.o
 # prefix the source directory
 SRCOBJS = $(foreach f, $(OBJS), src/$f)
 
-CFLAGS	= -O2 -Wall -Wextra -flto
+CFLAGS	= -O2 -Wall -Wextra -flto --std=c11 
 
-LIBS	= -lm
+LIBS	= -lm -lpthread
 
 CC	= clang
 
