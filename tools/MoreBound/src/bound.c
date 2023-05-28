@@ -59,14 +59,20 @@ FVec3 fvec_mult(FVec3 v, float m) {
   return v;
 }
 
+void fvec_muladd(FVec3 *out, FVec3 v, float m) {
+  out->x += v.x * m;
+  out->y += v.y * m;
+  out->z += v.z * m;
+}
+
 typedef struct _CentreOfMass {
   FVec3 pos, vel;
 } CentreOfMass;
 
 void update_centre_of_mass(CentreOfMass *com, const ParticleData *pd,
                            size_t i) {
-  com->pos = fvec_mult(pd_get_pos(pd, i), pd->mass[i]);
-  com->vel = fvec_mult(pd_get_vel(pd, i), pd->mass[i]);
+  fvec_muladd(&com->pos, pd_get_pos(pd, i), pd->mass[i]);
+  fvec_muladd(&com->vel, pd_get_vel(pd, i), pd->mass[i]);
 }
 
 typedef struct _MinPotentialThreadStorage {
@@ -145,7 +151,7 @@ float fvec_square_distance(FVec3 vel1, FVec3 vel2) {
 
 FVec3 fvec_zero() { return (FVec3){0, 0, 0}; }
 
-size_t find_and_update_bound(const ParticleData *pd, CentreOfMass data,
+size_t find_and_update_bound(const ParticleData *pd, CentreOfMass *weighted, CentreOfMass data,
                              double *total_bound_mass, int remnant) {
 
   size_t num_bound = 0;
@@ -166,7 +172,7 @@ size_t find_and_update_bound(const ParticleData *pd, CentreOfMass data,
     if (ke + pe < 0) {
       // particle is bound
       pd->bnd[i] = remnant;
-      update_centre_of_mass(&data, pd, i);
+      update_centre_of_mass(weighted, pd, i);
       num_bound += 1;
       mass_total += pd->mass[i];
     }
@@ -212,7 +218,7 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
         fvec_mult(weighted.pos, ibm),
         fvec_mult(weighted.vel, ibm),
     };
-    nbound += find_and_update_bound(pd, current, &bound_mass, remnant);
+    nbound += find_and_update_bound(pd, &weighted, current, &bound_mass, remnant);
     ++count;
 
     fractional_difference =
