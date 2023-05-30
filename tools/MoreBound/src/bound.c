@@ -7,7 +7,19 @@
 #include "globalvars.h"
 #include "particledata.h"
 
+#ifdef TRACY_ENABLE
+
 #include <tracy/TracyC.h>
+
+#else
+
+#define TracyCZone(ctx, active)
+#define TracyCZoneN(ctx, name, active)
+#define TracyCZoneEnd(ctx)
+#define TracyCFrameMarkEnd(a)
+#define TracyCFrameMarkNamed(a)
+
+#endif
 
 #define N_THREADS 6
 #define N_REMNANTS 3
