@@ -1,11 +1,13 @@
 #include <math.h>
+#include <pthread.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 #include "globalvars.h"
 #include "particledata.h"
+
+#include <tracy/TracyC.h>
 
 #define N_THREADS 6
 #define N_REMNANTS 3
@@ -75,71 +77,89 @@ void update_centre_of_mass(CentreOfMass *com, const ParticleData *pd,
   fvec_muladd(&com->vel, pd_get_vel(pd, i), pd->mass[i]);
 }
 
-typedef struct _MinPotentialThreadStorage {
-  const ParticleData *pd;
+typedef struct _PotDiffThreadStorage {
+  ParticleData *pd;
   int remnant;
-  double minimum_potential;
-  size_t index;
   size_t start;
   size_t end;
-} MinPotentialThreadStorage;
+} PotDiffThreadStorage;
 
-void *worker_find_min_potential(void *arg) {
-  MinPotentialThreadStorage *ts = (MinPotentialThreadStorage *)arg;
-  const ParticleData *pd = ts->pd;
-  int remnant = ts->remnant;
-
-  size_t selected = 0;
-  double potmin = calculate_potential(pd, selected, remnant);
+// update particle data potential by removing the potential difference of those
+// that are bound
+void *worker_update_potential(void *arg) {
+  TracyCZone(threadctx, 1);
+  PotDiffThreadStorage *ts = (PotDiffThreadStorage *)arg;
+  ParticleData *pd = ts->pd;
+  const int remnant = ts->remnant;
 
   for (size_t i = ts->start; i < ts->end; ++i) {
-    if (pd->bnd[i] IS_BOUND) {
-      // ignore if particle is already bound to something
-      continue;
-    }
-
-    double pot = calculate_potential(pd, i, remnant);
-    if (pot < potmin) {
-      potmin = pot;
-      selected = i;
+    const FVec3 *reference = pd_get_pos(pd, i);
+    // if particle was bound to the previous remnant
+    // update the potential of all other particles to not include bound particle
+    // anymore
+    if (remnant > 1 && pd->bnd[i] == remnant - 1) {
+      TracyCZoneN(potctx, "potential_update", 1);
+      for (size_t j = 0; j < pd->total_number; ++j) {
+        float seperation = fvec_square_distance(reference, pd_get_pos(pd, j));
+        if (seperation > 1e10) {
+          // add potential
+          pd->potential[j] += G * pd->mass[i] / sqrtf(seperation);
+        }
+      }
+      TracyCZoneEnd(potctx);
     }
   }
-
-  ts->minimum_potential = potmin;
-  ts->index = selected;
+  TracyCZoneEnd(threadctx);
   return NULL;
 }
 
-size_t find_particle_potential_min(const ParticleData *pd, int remnant) {
+size_t find_index_minimum(float *ptr, size_t N) {
+  TracyCZone(minctx, 1);
+  size_t index = 0;
+  double minimum = ptr[index];
+  for (size_t i = 0; i < N; ++i) {
+    if (ptr[i] < minimum) {
+      index = i;
+      minimum = ptr[i];
+    }
+  }
+  TracyCZoneEnd(minctx);
+  return index;
+}
+
+size_t find_particle_potential_min(ParticleData *pd, int remnant) {
+  if (remnant == 1)
+    goto FINDMIN;
+
   pthread_t threads[N_THREADS - 1];
-  MinPotentialThreadStorage storage[N_THREADS - 1];
+  PotDiffThreadStorage storage[N_THREADS - 1];
   const size_t workload = pd->total_number / N_THREADS;
 
   size_t i;
   // launch all worker threads
   for (i = 0; i < N_THREADS - 1; ++i) {
     size_t start = i * workload;
-    storage[i] = (MinPotentialThreadStorage){
-        pd, remnant, 0, 0, start, start + workload,
+    storage[i] = (PotDiffThreadStorage){
+        pd,
+        remnant,
+        start,
+        start + workload,
     };
-    pthread_create(&threads[i], NULL, worker_find_min_potential, &storage[i]);
+    pthread_create(&threads[i], NULL, worker_update_potential, &storage[i]);
   }
 
-  MinPotentialThreadStorage current = (MinPotentialThreadStorage){
-      pd, remnant, 0, 0, (N_THREADS - 1) * workload, pd->total_number};
+  PotDiffThreadStorage current = (PotDiffThreadStorage){
+      pd, remnant, (N_THREADS - 1) * workload, pd->total_number};
   // launch current thread
-  worker_find_min_potential((void *)&current);
+  worker_update_potential((void *)&current);
 
-  // join threads and aggregate results
+  // join threads
   for (i = 0; i < N_THREADS - 1; ++i) {
     pthread_join(threads[i], NULL);
-    // if a thread found somethin better, update the current
-    if (current.minimum_potential > storage[i].minimum_potential) {
-      current.minimum_potential = storage[i].minimum_potential;
-      current.index = storage[i].index;
-    }
   }
-  return current.index;
+
+FINDMIN:
+  return find_index_minimum(pd->potential, pd->total_number);
 }
 
 float fvec_square_distance(const FVec3 *vel1, const FVec3 *vel2) {
@@ -151,9 +171,10 @@ float fvec_square_distance(const FVec3 *vel1, const FVec3 *vel2) {
 
 FVec3 fvec_zero() { return (FVec3){0, 0, 0}; }
 
-size_t find_and_update_bound(const ParticleData *pd, CentreOfMass *weighted, CentreOfMass data,
-                             double *total_bound_mass, int remnant) {
-
+size_t find_and_update_bound(const ParticleData *pd, CentreOfMass *weighted,
+                             CentreOfMass data, double *total_bound_mass,
+                             int remnant) {
+  TracyCZone(findctx, 1);
   size_t num_bound = 0;
   double mass_total = *total_bound_mass;
 
@@ -179,6 +200,7 @@ size_t find_and_update_bound(const ParticleData *pd, CentreOfMass *weighted, Cen
   }
 
   *total_bound_mass = mass_total;
+  TracyCZoneEnd(findctx);
   return num_bound;
 }
 
@@ -188,7 +210,9 @@ typedef struct _Remnant {
   double mass;
 } Remnant;
 
-Remnant calculate_remnant(const ParticleData *pd, int remnant) {
+Remnant calculate_remnant(ParticleData *pd, int remnant) {
+  TracyCFrameMarkNamed("remnant");
+  TracyCZone(remnantctx, 1);
   CentreOfMass weighted = (CentreOfMass){fvec_zero(), fvec_zero()};
 
   // number of particles bound to the current remnant
@@ -218,7 +242,8 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
         fvec_mult(weighted.pos, ibm),
         fvec_mult(weighted.vel, ibm),
     };
-    nbound += find_and_update_bound(pd, &weighted, current, &bound_mass, remnant);
+    nbound +=
+        find_and_update_bound(pd, &weighted, current, &bound_mass, remnant);
     ++count;
 
     fractional_difference =
@@ -231,6 +256,8 @@ Remnant calculate_remnant(const ParticleData *pd, int remnant) {
   printf("REMNANT %d: Iteration completed in %d/%d steps. Mass of "
          "%gg.\nNumber of particles: %d\nFractional difference: %g\n\n",
          remnant, count, maxit, bound_mass, nbound, fractional_difference);
+  TracyCZoneEnd(remnantctx);
+  TracyCFrameMarkEnd("remnant");
   return (Remnant){remnant, nbound, bound_mass};
 }
 
@@ -252,7 +279,8 @@ int compare_remnant_mass(const void *ptr_a, const void *ptr_b) {
  * Repeat until the bound mass change <= tol between iterations or until
  * maxit is exceeded
  */
-void calculate_binding(const ParticleData *pd) {
+void calculate_binding(ParticleData *pd) {
+  TracyCZone(bindingctx, 1);
   // set all particles as unbound
   size_t i;
   for (i = 0; i < pd->total_number; ++i) {
@@ -289,6 +317,6 @@ void calculate_binding(const ParticleData *pd) {
   for (i = 0; i < pd->total_number; ++i) {
     pd->bnd[i] *= -1;
   }
-
+  TracyCZoneEnd(bindingctx);
   return;
 }

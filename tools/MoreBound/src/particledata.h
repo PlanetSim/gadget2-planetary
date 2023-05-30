@@ -27,7 +27,7 @@ FVec3 *pd_get_pos(const ParticleData *pd, size_t i);
 void pd_set_vel(ParticleData *pd, size_t i, FVec3 vel);
 void pd_set_pos(ParticleData *pd, size_t i, FVec3 pos);
 
-void calculate_binding(const ParticleData *pd);
+void calculate_binding(ParticleData *pd);
 int save_output(const ParticleData *pd, char *filename);
 
 #endif
