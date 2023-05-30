@@ -80,19 +80,16 @@ void update_centre_of_mass(CentreOfMass *com, const ParticleData *pd,
 typedef struct _PotDiffThreadStorage {
   ParticleData *pd;
   int remnant;
-  size_t start;
-  size_t end;
+
+  pthread_mutex_t *mutex;
+  size_t *jobcount;
+  size_t total_jobs;
+  size_t batch_size;
 } PotDiffThreadStorage;
 
-// update particle data potential by removing the potential difference of those
-// that are bound
-void *worker_update_potential(void *arg) {
-  TracyCZone(threadctx, 1);
-  PotDiffThreadStorage *ts = (PotDiffThreadStorage *)arg;
-  ParticleData *pd = ts->pd;
-  const int remnant = ts->remnant;
-
-  for (size_t i = ts->start; i < ts->end; ++i) {
+void update_potential(ParticleData *pd, size_t start, size_t end, int remnant) {
+  TracyCZone(uppotctx, 1);
+  for (size_t i = start; i < end; ++i) {
     const FVec3 *reference = pd_get_pos(pd, i);
     // if particle was bound to the previous remnant
     // update the potential of all other particles to not include bound particle
@@ -109,7 +106,38 @@ void *worker_update_potential(void *arg) {
       TracyCZoneEnd(potctx);
     }
   }
-  TracyCZoneEnd(threadctx);
+  TracyCZoneEnd(uppotctx);
+}
+
+// update particle data potential by removing the potential difference of those
+// that are bound
+void *worker_update_potential(void *arg) {
+  PotDiffThreadStorage *ts = (PotDiffThreadStorage *)arg;
+  ParticleData *pd = ts->pd;
+  const int remnant = ts->remnant;
+
+  size_t i = 0;
+  while (i < ts->total_jobs) {
+    // aquire lock
+    if (pthread_mutex_lock(ts->mutex)) {
+      // if we can't get it, try again
+      continue;
+    }
+
+    // get and increment counter
+    i = *(ts->jobcount);
+    *(ts->jobcount) += 1;
+
+    // release lock
+    pthread_mutex_unlock(ts->mutex);
+
+    if (i >= ts->total_jobs)
+      break;
+
+    const size_t start = ts->batch_size * i;
+    update_potential(pd, start, start + ts->batch_size, remnant);
+  }
+
   return NULL;
 }
 
@@ -131,30 +159,36 @@ size_t find_particle_potential_min(ParticleData *pd, int remnant) {
   if (remnant == 1)
     goto FINDMIN;
 
-  pthread_t threads[N_THREADS - 1];
-  PotDiffThreadStorage storage[N_THREADS - 1];
-  const size_t workload = pd->total_number / N_THREADS;
+  // worker pool
+  pthread_t threads[N_THREADS];
+  pthread_mutex_t mutex;
+  PotDiffThreadStorage storage[N_THREADS];
+  const size_t batch_size = 2048;
+
+  // calculate size and number of jobs
+  size_t jobcount = 0;
+  const size_t jobs = pd->total_number / batch_size;
+  const size_t rem = pd->total_number - (jobs * batch_size);
+  const size_t workers = jobs > N_THREADS ? N_THREADS : jobs;
+
+  if (pthread_mutex_init(&mutex, NULL)) {
+    printf("Failed to init mutex");
+    exit(3);
+  }
 
   size_t i;
-  // launch all worker threads
-  for (i = 0; i < N_THREADS - 1; ++i) {
-    size_t start = i * workload;
-    storage[i] = (PotDiffThreadStorage){
-        pd,
-        remnant,
-        start,
-        start + workload,
-    };
+  // launch all workers
+  for (i = 0; i < workers; ++i) {
+    storage[i] = (PotDiffThreadStorage){pd,        remnant, &mutex,
+                                        &jobcount, jobs,    batch_size};
     pthread_create(&threads[i], NULL, worker_update_potential, &storage[i]);
   }
 
-  PotDiffThreadStorage current = (PotDiffThreadStorage){
-      pd, remnant, (N_THREADS - 1) * workload, pd->total_number};
-  // launch current thread
-  worker_update_potential((void *)&current);
+  // calculate the remainder in main thread
+  update_potential(pd, pd->total_number - rem, pd->total_number, remnant);
 
-  // join threads
-  for (i = 0; i < N_THREADS - 1; ++i) {
+  // join all workers
+  for (i = 0; i < workers; ++i) {
     pthread_join(threads[i], NULL);
   }
 
