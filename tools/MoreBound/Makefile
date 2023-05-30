@@ -18,6 +18,9 @@ CXX = clang++
 $(EXEC): $(SRCOBJS) $(TRACYOBJ)
 	$(CC) $(CFLAGS) $(TRACYOBJ) $(SRCOBJS) -lstdc++ -o $(EXEC) $(LIBS)
 
+format:
+	clang-format -i src/*.c src/*.h
+
 test: $(EXEC)
 	time ./$(EXEC) snapshot_720 bndparam.txt
 run: $(EXEC)
