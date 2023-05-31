@@ -1,22 +1,36 @@
 EXEC	= MoreBound
+OBJS = main.o globalvars.o readparam.o save.o bound.o particledata.o
 
-OBJS	= main.o globalvars.o \
-	  readparam.o load.o \
-	  save.o bound.o\
-	  nrsrc/nrutil.o
+# prefix the source directory
+SRCOBJS = $(foreach f, $(OBJS), src/$f)
+CFLAGS	= -O2 -Wall -Wextra -flto --std=c11
+CXXFLAGS = -O2 -DTRACY_ENABLE --std=c++20 -lstdc++
 
-INCL	= globalvars.h nrsrc/nrutil.h
+TRACYROOT = ~/tracy
 
-CFLAGS	= -O3 
+LIBS	= -lm -lpthread
 
-LIBS	= -lm
+CC	= clang
+CXX = clang++
 
-CC	= gcc
+TRACYOBJ = $(TRACYROOT)/public/TracyClient.o
 
-$(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(EXEC) $(LIBS)
+$(EXEC): $(SRCOBJS)
+	$(CC) $(CFLAGS) $(SRCOBJS) -o $(EXEC) $(LIBS)
 
-$(OBJS): $(INCL)
+debug: CFLAGS += -fsanitize=address -g -I$(TRACYROOT)/public -DTRACY_ENABLE 
+debug: $(SRCOBJS) $(TRACYOBJ)
+	$(CC) $(CFLAGS) $(TRACYOBJ) $(SRCOBJS) -lstdc++ -o $(EXEC) $(LIBS)
+
+format:
+	clang-format -i src/*.c src/*.h
+
+test: debug
+	time ./$(EXEC) snapshot_720 bndparam.txt
+
+run: debug
+	time ./$(EXEC) snapshot_010 bndparam.txt
 
 clean :
-	rm -f *.o $(EXEC)
+	rm -f $(SRCOBJS) $(EXEC)
+# rm -f $(TRACYOBJ)
