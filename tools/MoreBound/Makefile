@@ -1,4 +1,4 @@
-EXE	= MoreBound
+EXEC	= MoreBound
 OBJS = main.o globalvars.o readparam.o save.o bound.o particledata.o
 
 # prefix the source directory
